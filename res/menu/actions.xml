@@ -13,4 +13,8 @@
           android:showAsAction="never"
           android:checkable="true" />
 
+    <item android:id="@+id/update_coeff_action"
+          android:title="Update Coeffs"
+          android:showAsAction="never"/>
+
 </menu>

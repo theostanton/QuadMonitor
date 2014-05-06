@@ -1,6 +1,7 @@
 package com.theostanton.QuadMonitor;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Rect;
@@ -15,9 +16,9 @@ public class Coeff extends Component{
     // Copid from first attempt
 
     private static final String TAG = "Coeff";
-    private static final int P = 0;
-    private static final int I = 1;
-    private static final int D = 2;
+    // public static final int P = 1;
+    // public static final int I = 2;
+    // public static final int D = 3;
 
     private int x;
     private int y;
@@ -32,6 +33,8 @@ public class Coeff extends Component{
 
     private int val = 0;
     private float fVal = 0.5f;
+
+    private static Intent intent;
 
 
     public Coeff(Context context, AttributeSet attrs) {
@@ -52,18 +55,18 @@ public class Coeff extends Component{
     }
 
     @Override
-    public void set(int[] i) {
-        super.set(i);
-        switch(i[0]){
-            case P:
+    public void set(int i) {
+        id = i;
+        switch(i){
+            case BluetoothService.KPid:
                 tit = "P";
                 val = com.theostanton.QuadMonitor.D.getpVal();
                 break;
-            case I:
+            case BluetoothService.KIid:
                 tit = "I";
                 val = com.theostanton.QuadMonitor.D.getiVal();
                 break;
-            case D:
+            case BluetoothService.KDid:
                 tit = "D";
                 val = com.theostanton.QuadMonitor.D.getdVal();
                 break;
@@ -78,12 +81,21 @@ public class Coeff extends Component{
         fVal = (float) val / (float) h;
         if (val > 0) {
             rect = new Rect(0, 0, getWidth(), val + getWidth());
-            Log.d(TAG,rect.toString());
+            //Log.d(TAG,rect.toString());
         } else {
             rect = new Rect(0, 0, getWidth(), getWidth());
             val = 0;
         }
 
+        // BluetoothService.sendMessage("message to send");
+
+    }
+
+    public void release(){
+        intent = new Intent(BluetoothService.BTSENDMESSAGE);
+        intent.putExtra("id", id);
+        intent.putExtra("Value", val);
+        getContext().sendBroadcast(intent);
     }
 
     @Override

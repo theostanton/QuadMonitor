@@ -108,16 +108,11 @@ public class BaseFragment extends Fragment implements View.OnTouchListener{
                 lasty = motionEvent.getY();
                 break;
             case MotionEvent.ACTION_UP :
-                //Log.d(TAG, view.toString());
-                //Log.d(TAG, "dx = " + dx);
-                //Log.d(TAG, "dy = " + dy);
-
                 if(max(dx,dy) < 1.0f) {
                     Intent intent = new Intent(getActivity(), FocusActivity.class);
 
                     intent.putExtra("ID", new int[]{view.getId()});
                     intent.putExtra("VIEW", VIEW);
-                    //Log.d(TAG, "ID = " + view.getId());
                     startActivity(intent);
                 }
                 break;

@@ -46,6 +46,7 @@ public class Component extends View implements View.OnTouchListener{
     protected long lastMs = 0L;
     protected boolean focused = false;
     protected boolean scalable = true;
+    private int[] i;
 
 
     public Component(Context context) {
@@ -85,10 +86,13 @@ public class Component extends View implements View.OnTouchListener{
 
 
     public void set(int i){
-        set(new int[]{i});
+        Log.e("Component", "set(int i) should set in subclass");
+        id = i;
     }
+
     public void set(int[] i){
-        Log.e("Component", "should set in subclass");
+        if(i.length == 1) set(i[0]);
+        else Log.e("Component", "set(int[] i) should set in subclass");
     }
 
     @Override

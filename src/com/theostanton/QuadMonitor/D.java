@@ -551,7 +551,7 @@ public class D{ // Singleton. make thread safer
     }
 
     public static float getVal(int i) {
-        return values == null ?  0.0f :  val(i);
+        return val(i);
     }
 
     public static String getStringVal(int i) {
@@ -675,6 +675,25 @@ public class D{ // Singleton. make thread safer
     public synchronized void notifyFinishedUpdating(){
         updating = false;
         notifyAll();
+    }
+
+    public static void setValue(int id, float value) { // from bluetooth
+        switch (id){
+            case BluetoothService.KPid:
+                pVal = (int)(value * 1000.0f);
+                Log.d(TAG,"pVal set to : " + pVal);
+                break;
+            case BluetoothService.KIid:
+                iVal = (int)(value * 1000.0f);
+                Log.d(TAG,"iVal set to : " + iVal);
+                break;
+            case BluetoothService.KDid:
+                dVal = (int)(value * 1000.0f);
+                Log.d(TAG,"dVal set to : " + dVal);
+                break;
+            default :
+                Log.e(TAG,"setValue id error " + id);
+        }
     }
 
     class Updater extends Thread {

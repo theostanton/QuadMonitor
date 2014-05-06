@@ -14,6 +14,8 @@ import com.theostanton.QuadMonitor.D;
  */
 public class Dial extends Component{
 
+    protected final String TAG = "Dial";
+
 //    private static final int ROLLMES = 0;
 //    private static final int ROLLERR = 1;
 //    private static final int PITCHMES = 2;
@@ -23,6 +25,7 @@ public class Dial extends Component{
 
     private D d;
     private int[] id;
+    private int[] lineColor;
     private int ids = -1;
 
     private float radius;
@@ -31,15 +34,21 @@ public class Dial extends Component{
     public Dial(Context context, AttributeSet attrs) {
         super(context, attrs);
         d = D.getInstance();
-        id = new int[8];
         title = "Dial";
+        lineColor = new int[3];
+        lineColor[0] = Color.RED;
+        lineColor[1] = Color.BLUE;
+        lineColor[2] = Color.GREEN;
     }
 
     public Dial(Context context, AttributeSet attrs, boolean f) {
         super(context, attrs);
         focused = true;
-        id = new int[8];
         title = "Dial";
+        lineColor = new int[3];
+        lineColor[0] = Color.RED;
+        lineColor[1] = Color.BLUE;
+        lineColor[2] = Color.GREEN;
     }
 
     @Override
@@ -48,21 +57,22 @@ public class Dial extends Component{
         c.drawOval(sqBounds, frameP);
         c.drawLine(sqBounds.left,ctrY,sqBounds.right,ctrY,frameP);
 
-
-        int idDec = ids;
-        switch(idDec){
-            case 1:
-                drawLine(Math.toRadians(D.getVal(id[idDec--])), Color.BLUE, c);
-            case 0:
-                drawLine(Math.toRadians(D.getVal(id[idDec])), Color.RED, c);
-                break;
-            default:
-                Log.e("Dial", "No ids set");
+        if(id != null) {
+            for (int i = 0; i < id.length; i++) {
+                //Log.d(TAG, "id[" + i + "] = " + id[i]);
+                drawLine(Math.toRadians(D.getVal(id[i])), lineColor[i], c);
+            }
         }
 
-
         c.drawText(title, ctrX, top + textY, textP);
-        //c.drawText(D.getStringVal(id), ctrX, textY, textP);
+    }
+
+    public void set(int[] i){
+        Log.d(TAG, i.length + " ids being set");
+        for(int ii: i){
+            Log.d(TAG, "id : " + ii + " set" );
+        }
+        id = i;
     }
 
     private void drawLine(double ang, int color, Canvas c){
@@ -75,12 +85,12 @@ public class Dial extends Component{
                 ctrY-radius*(float)Math.sin(ang),p);
     }
 
-    public void addId(int i){
-        if(i == -1) Log.e(title,"ID == -1");
-        id[++ids] = i;
-        title = d.getName(i);
-        invalidate();
-    }
+//    public void addId(int i){
+//        if(i == -1) Log.e(title,"ID == -1");
+//        id[++ids] = i;
+//        title = D.getName(i);
+//        invalidate();
+//    }
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {

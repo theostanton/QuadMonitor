@@ -23,13 +23,13 @@ public class CoeffFragment extends BaseFragment implements View.OnTouchListener{
         VIEW = "COEFFS";
 
         pCoeff = (Coeff) layoutView.findViewById(R.id.coeffViewP);
-        pCoeff.set(0);
+        pCoeff.set(BluetoothService.KPid);
         pCoeff.setOnTouchListener(this);
         iCoeff = (Coeff) layoutView.findViewById(R.id.coeffViewI);
-        iCoeff.set(1);
+        iCoeff.set(BluetoothService.KIid);
         iCoeff.setOnTouchListener(this);
         dCoeff = (Coeff) layoutView.findViewById(R.id.coeffViewD);
-        dCoeff.set(2);
+        dCoeff.set(BluetoothService.KDid);
         dCoeff.setOnTouchListener(this);
 
 
@@ -62,6 +62,7 @@ public class CoeffFragment extends BaseFragment implements View.OnTouchListener{
                 lasty = motionEvent.getY();
                 break;
             case MotionEvent.ACTION_UP :
+                coeffView.release();
                 break;
 
 

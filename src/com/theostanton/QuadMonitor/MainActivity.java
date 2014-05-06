@@ -113,6 +113,10 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle presses on the action bar items
         switch (item.getItemId()) {
+            case R.id.update_coeff_action :
+                //int val = BluetoothService.getValue(BluetoothService.KPid);
+                BluetoothService.updateCoeffs();
+                break;
             case R.id.bluetooth_action:
                 if(item.isChecked()){
                     stopService(intent);
@@ -141,6 +145,7 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
             default:
                 return super.onOptionsItemSelected(item);
         }
+        return true;
     }
 
     /**

@@ -91,10 +91,10 @@ public class Graph extends Component {
         c.drawText(title, ctrX, textY, textP);
     }
 
-    public void set(int[] i) {
-        if (i[0] == -1) Log.e(title, "ID[0] == -1");
-        id = i[0];
-        dID = i[0];
+    public void set(int i){
+        if (i == -1) Log.e(title, "ID[0] == -1");
+        id = i;
+        dID = i;
         title = D.getAxisTitle(dID);
     }
 }

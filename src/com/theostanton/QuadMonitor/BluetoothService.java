@@ -4,16 +4,16 @@ import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 import android.widget.Toast;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.nio.ByteBuffer;
 import java.util.UUID;
 
@@ -23,7 +23,15 @@ import java.util.UUID;
 public class BluetoothService extends Service {
 
     private static final String TAG = "BluetoothService";
-    public static final String BROADCAST_ACTION = "BROADCAST_ACTION";
+    public static final String BROADCAST_ACTION = "FRESHBTDATA";
+    public static final String BTSENDMESSAGE = "BTSENDMESSAGE";
+
+    public static final int KPid = 1;
+    public static final int KIid = 2;
+    public static final int KDid = 3;
+    public static final int getKP = 4;
+    public static final int getKI = 5;
+    public static final int getKD = 6;
 
     private D d;
 
@@ -32,7 +40,8 @@ public class BluetoothService extends Service {
 
     private BluetoothAdapter bluetooth;
     private Listen listen;
-    private InputStream inStream;
+    private static InputStream inStream;
+    private static OutputStream outStream;
     private BluetoothSocket btSocket;
     private BluetoothDevice bluetoothDevice;
     private static final UUID MY_UUID = UUID
@@ -52,19 +61,83 @@ public class BluetoothService extends Service {
                 listen.start();
             }
         }
+
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(BTSENDMESSAGE);
+        registerReceiver(receiver, filter);
     }
 
     @Override
     public void onDestroy() {
         if(listen != null && listen.isAlive()) listen.end();
         try {
+            outStream.close();
+            inStream.close();
             btSocket.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
         super.onDestroy();
         Toast.makeText(this, "Bluetooth Disconnected.", Toast.LENGTH_SHORT).show();
+        unregisterReceiver(receiver);
     }
+    
+    public static void sendMessage(String message){
+        Log.d(TAG, "sendMessage() : " + message);
+    }
+
+    public static void updateCoeffs(){ // requests coeff values
+        Log.d(TAG,"updateCoeffs()");
+        try {
+            outStream.write((byte)(KPid+100));
+            outStream.write((byte)(KIid+100));
+            outStream.write((byte)(KDid+100));
+            Log.d(TAG,"Request sent");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static String getValue(int id){
+        Log.d(TAG,"Getting id: " + id);
+        try {
+            outStream.write((byte)(id+100));
+            return "Sent";
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return "Not Sent";
+    }
+
+    private void sendMessage(int id, byte[] bytes){
+        Log.d(TAG,"Sending id : " + id);
+        byte[] data = new byte[bytes.length + 1];
+        data[0] = (byte)id;
+        data[1] = bytes[1]; // MSB
+        data[2] = bytes[0]; // LSB
+
+        // data[0] = 1;
+        // data[1] = 0;
+        // data[2] = 3;
+
+        try {
+            outStream.write(data);
+        } catch (IOException e) {
+            Log.d(TAG,"outStream.write() error");
+            e.printStackTrace();
+        }
+    }
+
+//    public void sendMessage(int i, int val){
+//        switch (i){
+//            case P:
+//            case I:
+//            case D:
+//                sendMessage(i,)
+//
+//        }
+//    }
 
     public void sendInfo(String data){
         //Log.d(TAG,"sendInfo()");
@@ -115,6 +188,7 @@ public class BluetoothService extends Service {
 
         try {
             inStream = btSocket.getInputStream();
+            outStream = btSocket.getOutputStream();
         } catch (IOException e) {
             Log.e(TAG,"Couldn't get inStream");
             e.printStackTrace();
@@ -124,7 +198,33 @@ public class BluetoothService extends Service {
 
     }
 
+    private byte[] getInt16(int val){
+        byte[] bytes = new byte[2];
+        bytes[0] = (byte) val; // LSB
+        bytes[1] = (byte) ( val >> 8 ); // MSB
+        Log.d("bytes[0]",Integer.toBinaryString(bytes[0]));
+        Log.d("bytes[1]",Integer.toBinaryString(bytes[1]));
+        return bytes;
+    }
 
+    private final BroadcastReceiver receiver = new BroadcastReceiver() {
+        
+        private static final String TAG = "BTBroadcastReceiver";
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if(action.equals(BTSENDMESSAGE)){
+                int id = intent.getIntExtra("id", 0);
+                int value = intent.getIntExtra("Value", 0);
+                Log.d(TAG, "Message I = " + id);
+                Log.d(TAG, "Message Value = " + value);
+                sendMessage(id, getInt16(value));
+            }
+            else {
+                Log.d(TAG,action);
+            }
+        }
+    };
 
     class Listen extends Thread {
 
@@ -146,30 +246,44 @@ public class BluetoothService extends Service {
             while (running) {
                 try {
                     if ((line = in.readLine()) != null) {
-                        String[] strings = line.split(" ");
-                        float[] packet = new float[strings.length];
-                        //Log.e("Values", "In");
-                        for (int i = 0; i < strings.length; i++) {
-                            if (strings[i].contains(".")) packet[i] = Float.parseFloat(strings[i]);
-                            //Log.d(i + " ", String.valueOf(packet[i]));
-                        }
-                        //Log.d("string.size()",strings.length + " ");
-                        long start = System.currentTimeMillis();
-                        d.addToPacketQueue(packet);
-                        long sortPacket = System.currentTimeMillis() - start;
-                        //Log.d("sortPacket ms", String.valueOf(sortPacket));
-//                        new Thread() {
-//                            public void run() {
-//
-//                            }
-//                        }.start();
+                        if(line.contains("::")) setValue(line);
+                        else if(line.length() > 20) sortPacket(line);
+                        else Log.e("Data In", line);
                     }
                     sendBroadcast(intent);
 
                     Thread.sleep(1);
-                } catch (Exception e) {
-                    Log.e("Listener", "Error", e);
+                } catch (IOException e) {
+                    //running = false;
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } catch (Exception e){
+                    e.printStackTrace();
                 }
+            }
+        }
+
+        private void sortPacket(String line){
+            String[] strings = line.split(" ");
+            float[] packet = new float[strings.length];
+            for (int i = 0; i < strings.length; i++) {
+
+                if (strings[i].contains(".")) packet[i] = Float.parseFloat(strings[i]);
+                //Log.d(i + " ", String.valueOf(packet[i]));
+            }
+            //Log.d("string.size()",strings.length + " ");
+            long start = System.currentTimeMillis();
+            d.addToPacketQueue(packet);
+            long sortPacket = System.currentTimeMillis() - start;
+        }
+
+        private void setValue(String line){
+            String[] strings = line.split("::");
+            Log.d(TAG,"line = " + line);
+            if(strings.length == 2){
+                int id = Integer.parseInt(strings[0]);
+                float value = Float.parseFloat(strings[1]);
+                D.setValue(id,value);
             }
         }
 
