@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+       >
+
+    <item android:id="@+id/bluetooth_action"
+          android:title="Bluetooth"
+          android:showAsAction="never"
+          android:checkable="true"/>
+
+    <item android:id="@+id/automate_action"
+          android:title="Automate"
+          android:showAsAction="never"
+          android:checkable="true" />
+
+</menu>
