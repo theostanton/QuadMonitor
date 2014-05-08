@@ -67,12 +67,13 @@ public class D{ // Singleton. make thread safer
     public static boolean fresh = true;
     public static Random r = new Random();
     public static float textSize = 60.0f;
+    public static boolean freshConsole = false;
     private static D instance;
     private static boolean updating = false;
     private static SparseArray<Value> values;
     private static Bitmap bitMap;
-    private static SparseArray<LinkedList<Float>> lists;
     ;
+    private static SparseArray<LinkedList<Float>> lists;
     private static Canvas[] canvases;
     private static Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
     private static Bitmap  bmp;
@@ -97,6 +98,7 @@ public class D{ // Singleton. make thread safer
     private static float sampleRate = 20.0f;
     private static int sampleRateOffset = 0;
     private static Updater updater;
+    private static String console;
     private Intent intent;
     private Bitmap[] bitMaps;
 
@@ -648,6 +650,17 @@ public class D{ // Singleton. make thread safer
     public static D getInstance() {
         if (instance == null) instance = new D();
         return instance;
+    }
+
+    public static String getConsole() {
+        freshConsole = false;
+        return console;
+    }
+
+    public static void appendConsole(String toAppend) {
+        console += toAppend;
+        console += "\n";
+        freshConsole = true;
     }
 
     public void setGraphBounds(int w, int h) {

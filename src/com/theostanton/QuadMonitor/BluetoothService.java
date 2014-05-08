@@ -295,9 +295,9 @@ public class BluetoothService extends Service implements SharedPreferences.OnSha
                 try {
                     if ((line = in.readLine()) != null) {
                         if(line.contains("::")) setValue(line);
-                        if (line.contains("Error")) Log.e("Data In", line);
+                        if (line.contains("Error")) addToConsole(line, true);
                         else if(line.length() > 20) sortPacket(line);
-                        else Log.d("Data In", line);
+                        else addToConsole(line, true);
                     }
                     sendBroadcast(intent);
 
@@ -310,6 +310,12 @@ public class BluetoothService extends Service implements SharedPreferences.OnSha
                     e.printStackTrace();
                 }
             }
+        }
+
+        private void addToConsole(String line, boolean error) {
+            D.appendConsole(line);
+            if (error) Log.e("Data In", line);
+            //else Log.d("Data In", line);
         }
 
         private void sortPacket(String line){

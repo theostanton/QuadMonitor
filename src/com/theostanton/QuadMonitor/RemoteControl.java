@@ -58,11 +58,11 @@ public class RemoteControl extends View implements View.OnTouchListener {
 
         joyPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         joyPaint.setStyle(Paint.Style.FILL);
-        joyPaint.setColor(Color.GRAY);
+        joyPaint.setColor(Color.BLACK);
 
         linePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         linePaint.setStyle(Paint.Style.STROKE);
-        linePaint.setColor(Color.GRAY);
+        linePaint.setColor(Color.BLACK);
 
         xVal = 90;
         yVal = 90;

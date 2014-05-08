@@ -19,6 +19,7 @@ import android.view.MenuItem;
 import android.widget.LinearLayout;
 import com.theostanton.QuadMonitor.dials.DialFragment;
 import com.theostanton.QuadMonitor.fragments.BaseFragment;
+import com.theostanton.QuadMonitor.fragments.ConsoleFragment;
 import com.theostanton.QuadMonitor.fragments.RawFragment;
 import com.theostanton.QuadMonitor.graphs.GraphFragment;
 import com.theostanton.QuadMonitor.pid.PidFragment;
@@ -28,7 +29,7 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
      * Called when the activity is first created.
      */
     private static final String TAG = "MainActivity";
-    private static final String[] tabLabels = {"Graphs", "Dials", "PID","Raw","Coeffs"};
+    private static final String[] tabLabels = {"Graphs", "Dials", "PID", "Raw", "Coeffs", "Console"};
     private D d;
     private PagerAdapter pagerAdapter;
 
@@ -141,6 +142,8 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
             if (remoteLayout != null) remoteLayout.setVisibility(LinearLayout.VISIBLE);
             remoteLayout = (LinearLayout) this.findViewById(R.id.remoteControlLLraw);
             if (remoteLayout != null) remoteLayout.setVisibility(LinearLayout.VISIBLE);
+            remoteLayout = (LinearLayout) this.findViewById(R.id.remoteControlLLconsole);
+            if (remoteLayout != null) remoteLayout.setVisibility(LinearLayout.VISIBLE);
         } else {
             LinearLayout remoteLayout = (LinearLayout) this.findViewById(R.id.remoteControlLLgraph);
             if (remoteLayout != null) remoteLayout.setVisibility(LinearLayout.GONE);
@@ -149,6 +152,8 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
             remoteLayout = (LinearLayout) this.findViewById(R.id.remoteControlLLpid);
             if (remoteLayout != null) remoteLayout.setVisibility(LinearLayout.GONE);
             remoteLayout = (LinearLayout) this.findViewById(R.id.remoteControlLLraw);
+            if (remoteLayout != null) remoteLayout.setVisibility(LinearLayout.GONE);
+            remoteLayout = (LinearLayout) this.findViewById(R.id.remoteControlLLconsole);
             if (remoteLayout != null) remoteLayout.setVisibility(LinearLayout.GONE);
         }
     }
@@ -250,6 +255,9 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
                     break;
                 case 4:
                     currFragment = new CoeffFragment();
+                    break;
+                case 5:
+                    currFragment = new ConsoleFragment();
                     break;
                 default:
                     currFragment = new DialFragment();
