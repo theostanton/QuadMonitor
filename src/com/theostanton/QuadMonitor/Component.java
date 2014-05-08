@@ -17,15 +17,15 @@ import java.util.Random;
  */
 public class Component extends View implements View.OnTouchListener{
 
+    protected final String TAG = "Component";
+    public int id;
+    public int acc = 0;
     protected Paint textP = new Paint(Paint.ANTI_ALIAS_FLAG);
     protected Paint frameP = new Paint(Paint.ANTI_ALIAS_FLAG);
     protected Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
-
     protected int bgColor = Color.RED;
     protected String title = "Component";
-    protected final String TAG = "Component";
     protected Random r = new Random();
-
     protected RectF sqBounds;
     protected float top;
     protected float bot;
@@ -36,11 +36,6 @@ public class Component extends View implements View.OnTouchListener{
     protected float ctrX;
     protected float ctrY;
     protected float textY;
-
-    public int id;
-
-    public int acc = 0;
-
     protected long fps = 0L;
     protected long lastfFs = 0L;
     protected long lastMs = 0L;
@@ -72,7 +67,7 @@ public class Component extends View implements View.OnTouchListener{
         textP.setTextSize(60.0f);
         textP.setStyle(Paint.Style.FILL);
         textP.setColor(Color.WHITE);
-        textP.setAlpha(50);
+        textP.setAlpha(100);
 
         frameP.setColor(Color.WHITE);
         frameP.setStyle(Paint.Style.STROKE);

@@ -4,12 +4,10 @@ import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
+import android.content.*;
 import android.os.Handler;
 import android.os.IBinder;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -20,82 +18,73 @@ import java.util.UUID;
 /**
  * Created by theo on 26/04/2014.
  */
-public class BluetoothService extends Service {
+public class BluetoothService extends Service implements SharedPreferences.OnSharedPreferenceChangeListener {
 
-    private static final String TAG = "BluetoothService";
     public static final String BROADCAST_ACTION = "FRESHBTDATA";
     public static final String BTSENDMESSAGE = "BTSENDMESSAGE";
+    private final BroadcastReceiver receiver = new BroadcastReceiver() {
 
+        private static final String TAG = "BTBroadcastReceiver";
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if (action.equals(BTSENDMESSAGE)) {
+                int id = intent.getIntExtra("id", 0);
+                int value = intent.getIntExtra("Value", 0);
+                //Log.d(TAG, "Message I = " + id);
+                //Log.d(TAG, "Message Value = " + value);
+                sendMessage(id, getInt16(value));
+            } else {
+                Log.d(TAG, action);
+            }
+        }
+    };
     public static final int KPid = 1;
     public static final int KIid = 2;
     public static final int KDid = 3;
-    public static final int getKP = 4;
-    public static final int getKI = 5;
-    public static final int getKD = 6;
-
-    private D d;
-
-    private Intent intent;
-    private final Handler handler = new Handler();
-
-    private BluetoothAdapter bluetooth;
-    private Listen listen;
-    private static InputStream inStream;
-    private static OutputStream outStream;
-    private BluetoothSocket btSocket;
-    private BluetoothDevice bluetoothDevice;
+    public static final int RATEid = 4;
+    public static final int COMPid = 5;
+    public static final int MAXINTEGRALid = 6;
+    public static final int THROTTLEid = D.RXTHROTTLE;
+    public static final int YAWid = D.RXYAW;
+    public static final int PITCHLid = D.RXPITCH;
+    public static final int ROLLid = D.RXROLL;
+    private static final String TAG = "BluetoothService";
     private static final UUID MY_UUID = UUID
             .fromString("00001101-0000-1000-8000-00805F9B34FB");
+    private static InputStream inStream;
+    private static OutputStream outStream;
+    private final Handler handler = new Handler();
+    private SharedPreferences.OnSharedPreferenceChangeListener preferenceListener;
+    private D d;
+    private Intent intent;
+    private BluetoothAdapter bluetooth;
+    private Listen listen;
+    private BluetoothSocket btSocket;
+    private BluetoothDevice bluetoothDevice;
 
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        d = D.getInstance();
-        Log.d(TAG, "onCreate()");
-        intent = new Intent(BROADCAST_ACTION);
-        bluetooth = BluetoothAdapter.getDefaultAdapter();
-        Toast.makeText(this, "Connecting via bluetooth...", Toast.LENGTH_LONG).show();
-        if(checkBTState()) {
-            if (connectToDevice()) {
-                listen = new Listen();
-                listen.start();
-            }
-        }
-
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(BTSENDMESSAGE);
-        registerReceiver(receiver, filter);
-    }
-
-    @Override
-    public void onDestroy() {
-        if(listen != null && listen.isAlive()) listen.end();
-        try {
-            outStream.close();
-            inStream.close();
-            btSocket.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        super.onDestroy();
-        Toast.makeText(this, "Bluetooth Disconnected.", Toast.LENGTH_SHORT).show();
-        unregisterReceiver(receiver);
-    }
-    
-    public static void sendMessage(String message){
+    public static void sendMessage(String message) {
         Log.d(TAG, "sendMessage() : " + message);
     }
 
-    public static void updateCoeffs(){ // requests coeff values
-        Log.d(TAG,"updateCoeffs()");
+    public static void getCoeffs() { // requests coeff values
+        Log.d(TAG, "getCoeffs()");
         try {
-            outStream.write((byte)(KPid+100));
-            outStream.write((byte)(KIid+100));
-            outStream.write((byte)(KDid+100));
-            Log.d(TAG,"Request sent");
+            outStream.write((byte) (KPid + 100));
+            outStream.write((byte) (KIid + 100));
+            outStream.write((byte) (KDid + 100));
+            Log.d(TAG, "Request sent");
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public static void setCoeffs() { // requests coeff values
+        Log.d(TAG, "setCoeffs()");
+        sendMessage(KPid, getInt16(D.getpVal()));
+        sendMessage(KIid, getInt16(D.getiVal()));
+        sendMessage(KDid, getInt16(D.getdVal()));
     }
 
     public static String getValue(int id){
@@ -110,8 +99,12 @@ public class BluetoothService extends Service {
         return "Not Sent";
     }
 
-    private void sendMessage(int id, byte[] bytes){
-        Log.d(TAG,"Sending id : " + id);
+    public static void sendValue(int id, int value) {
+        sendMessage(id, getInt16(value));
+    }
+
+    private static void sendMessage(int id, byte[] bytes) {
+        Log.d(TAG, "Sending id : " + id);
         byte[] data = new byte[bytes.length + 1];
         data[0] = (byte)id;
         data[1] = bytes[1]; // MSB
@@ -129,6 +122,15 @@ public class BluetoothService extends Service {
         }
     }
 
+    private static byte[] getInt16(int val) {
+        byte[] bytes = new byte[2];
+        bytes[0] = (byte) val; // LSB
+        bytes[1] = (byte) (val >> 8); // MSB
+        // Log.d("bytes[0]",Integer.toBinaryString(bytes[0]));
+        // Log.d("bytes[1]",Integer.toBinaryString(bytes[1]));
+        return bytes;
+    }
+
 //    public void sendMessage(int i, int val){
 //        switch (i){
 //            case P:
@@ -139,7 +141,48 @@ public class BluetoothService extends Service {
 //        }
 //    }
 
-    public void sendInfo(String data){
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        d = D.getInstance();
+        Log.d(TAG, "onCreate()");
+        intent = new Intent(BROADCAST_ACTION);
+        bluetooth = BluetoothAdapter.getDefaultAdapter();
+        Toast.makeText(this, "Connecting via bluetooth...", Toast.LENGTH_LONG).show();
+        if (checkBTState()) {
+            if (connectToDevice()) {
+                listen = new Listen();
+                listen.start();
+            }
+        }
+
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(BTSENDMESSAGE);
+        registerReceiver(receiver, filter);
+
+        SharedPreferences prefs =
+                PreferenceManager.getDefaultSharedPreferences(this);
+        prefs.registerOnSharedPreferenceChangeListener(this);
+    }
+
+    @Override
+    public void onDestroy() {
+        if (listen != null && listen.isAlive()) listen.end();
+        try {
+            if (outStream != null) outStream.close();
+            if (inStream != null) inStream.close();
+            if (btSocket != null) btSocket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        super.onDestroy();
+        Toast.makeText(this, "Bluetooth Disconnected.", Toast.LENGTH_SHORT).show();
+        unregisterReceiver(receiver);
+        PreferenceManager.getDefaultSharedPreferences(this).
+                unregisterOnSharedPreferenceChangeListener(this);
+    }
+
+    public void sendInfo(String data) {
         //Log.d(TAG,"sendInfo()");
         intent.putExtra("data", data);
         sendBroadcast(intent);
@@ -152,8 +195,8 @@ public class BluetoothService extends Service {
     }
 
     private boolean checkBTState() {
-        if(bluetooth==null) {
-            Log.e(TAG,"Bluetooth NOT supported. Aborting.");
+        if (bluetooth == null) {
+            Log.e(TAG, "Bluetooth NOT supported. Aborting.");
             return false;
         } else {
             if (bluetooth.isEnabled()) {
@@ -161,15 +204,15 @@ public class BluetoothService extends Service {
                 bluetooth.startDiscovery();
                 return true;
             } else {
-                Log.e(TAG,"Bluetooth is not enabled...");
+                Log.e(TAG, "Bluetooth is not enabled...");
             }
         }
         return false;
     }
 
-    private boolean connectToDevice(){
+    private boolean connectToDevice() {
         bluetoothDevice = bluetooth.getRemoteDevice("98:D3:31:50:0C:FE");
-        Log.d(TAG,"Conencting to " + bluetoothDevice.getName());
+        Log.d(TAG, "Conencting to " + bluetoothDevice.getName());
 
         try {
             btSocket = bluetoothDevice.createRfcommSocketToServiceRecord(MY_UUID);
@@ -190,7 +233,7 @@ public class BluetoothService extends Service {
             inStream = btSocket.getInputStream();
             outStream = btSocket.getOutputStream();
         } catch (IOException e) {
-            Log.e(TAG,"Couldn't get inStream");
+            Log.e(TAG, "Couldn't get inStream");
             e.printStackTrace();
             return false;
         }
@@ -198,33 +241,37 @@ public class BluetoothService extends Service {
 
     }
 
-    private byte[] getInt16(int val){
-        byte[] bytes = new byte[2];
-        bytes[0] = (byte) val; // LSB
-        bytes[1] = (byte) ( val >> 8 ); // MSB
-        Log.d("bytes[0]",Integer.toBinaryString(bytes[0]));
-        Log.d("bytes[1]",Integer.toBinaryString(bytes[1]));
-        return bytes;
+    private void toastError(String error) {
+        Toast.makeText(this, error, Toast.LENGTH_LONG).show();
     }
 
-    private final BroadcastReceiver receiver = new BroadcastReceiver() {
-        
-        private static final String TAG = "BTBroadcastReceiver";
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            if(action.equals(BTSENDMESSAGE)){
-                int id = intent.getIntExtra("id", 0);
-                int value = intent.getIntExtra("Value", 0);
-                Log.d(TAG, "Message I = " + id);
-                Log.d(TAG, "Message Value = " + value);
-                sendMessage(id, getInt16(value));
-            }
-            else {
-                Log.d(TAG,action);
-            }
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+
+
+        if (key.equals("sampleratePref")) {
+            String str = sharedPreferences.getString("sampleratePref", "666");
+            int rate = Integer.valueOf(str);
+            Log.d(TAG, "rate = " + rate);
+            BluetoothService.sendValue(BluetoothService.RATEid, rate);
+        } else if (key.equals("compPref")) {
+            String str = sharedPreferences.getString("compPref", "666");
+            int comp = Integer.valueOf(str);
+            //int iComp = (int)(comp * 1000.0f);
+            Log.d(TAG, "comp = " + comp);
+            BluetoothService.sendValue(BluetoothService.COMPid, comp);
+        } else if (key.equals("max_integral")) {
+            String str = sharedPreferences.getString("max_integral", "666");
+            int comp = Integer.valueOf(str);
+            //int iComp = (int)(comp * 1000.0f);
+            Log.d(TAG, "max_integral = " + comp);
+            BluetoothService.sendValue(BluetoothService.MAXINTEGRALid, comp);
+        } else {
+            Log.e(TAG, "onSharedPreferenceChanged() missed " + key);
         }
-    };
+
+
+    }
 
     class Listen extends Thread {
 
@@ -237,6 +284,7 @@ public class BluetoothService extends Service {
             } catch (IOException e) {
                 Log.e("Listen", "Couldn't get instream");
             }
+            setCoeffs();
         }
 
         public void run() {
@@ -247,8 +295,9 @@ public class BluetoothService extends Service {
                 try {
                     if ((line = in.readLine()) != null) {
                         if(line.contains("::")) setValue(line);
+                        if (line.contains("Error")) Log.e("Data In", line);
                         else if(line.length() > 20) sortPacket(line);
-                        else Log.e("Data In", line);
+                        else Log.d("Data In", line);
                     }
                     sendBroadcast(intent);
 

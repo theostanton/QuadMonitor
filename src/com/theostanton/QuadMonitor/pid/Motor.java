@@ -17,17 +17,14 @@ import java.util.Random;
 public class Motor extends Component {
 
     private static final String TAG = "Motor";
+    private static final String[] labels = {"P", "I", "D", "T"};
     private Random r = new Random(); // TODO: temp
-
-    private Paint pBar = new Paint(Paint.ANTI_ALIAS_FLAG);
 
 //    private static final int A = 0;
 //    private static final int B = 1;
 //    private static final int C = 2;
 //    private static final int D = 3;
-
-    private static final String[] labels = {"P","I","D","T"};
-
+private Paint pBar = new Paint(Paint.ANTI_ALIAS_FLAG);
     private float[] barX = new float[4];
     private float[] barTextX = new float[4];
     private float   barTextY;
@@ -59,8 +56,9 @@ public class Motor extends Component {
         if(!focused) c.drawRect(sqBounds, frameP);
         c.drawLine(sqBounds.left,ctrY,sqBounds.right,ctrY,frameP);
 
-        if(focused) c.drawText(title, ctrX, getBottom() - textP.getTextSize()*2.0f, textP);
-        else        c.drawText(title, ctrX, textY, textP);
+        c.drawText(title, ctrX, getBottom() - textP.getTextSize() * 2.0f, textP);
+        //if(focused) c.drawText(title, ctrX, getBottom() - textP.getTextSize()*2.0f, textP);
+        //else        c.drawText(title, ctrX, textY, textP);
         float tot = 0.0f;
         for(int i = 0; i<3; i++) {
             float val = Math.min( D.getVal(dID + i) * yScale, maxY);

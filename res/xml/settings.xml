@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory android:title="@string/connection_category">
+        <EditTextPreference
+                android:title="@string/pref_user_name"
+                android:summary="@string/pref_user_name_summary"
+                android:key="prefUsername"/>
+        <CheckBoxPreference
+                android:title="@string/autoconnect_checkbox"
+                android:summary="@string/autoconnect_summary_checkbox"
+                android:key="autoconnectCheckbox"/>
+        <EditTextPreference
+                android:title="@string/samplerate_pref"
+                android:summary="@string/samplerate_summar_pref"
+                android:inputType="number"
+                android:key="sampleratePref"/>
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/quadcopter_category">
+
+        <ListPreference
+                android:key="mode"
+                android:title="@string/quadcopter_mode"
+                android:summary="@string/mode_summary"
+                android:defaultValue="0"
+                android:entries="@array/modes"
+                android:entryValues="@array/mode_values"/>
+
+        <EditTextPreference
+                android:title="@string/comp_pref"
+                android:summary="@string/comp_summary"
+                android:inputType="number"
+                android:key="compPref"/>
+
+        <EditTextPreference
+                android:title="@string/p_coeff"
+                android:summary=" "
+                android:defaultValue="500"
+                android:inputType="number"
+                android:key="p_coeff"/>
+
+        <EditTextPreference
+                android:title="@string/i_coeff"
+                android:summary=" "
+                android:defaultValue="500"
+                android:inputType="number"
+                android:key="i_coeff"/>
+
+        <EditTextPreference
+                android:title="@string/d_coeff"
+                android:summary=" "
+                android:defaultValue="500"
+                android:inputType="number"
+                android:key="d_coeff"/>
+
+        <EditTextPreference
+                android:title="@string/max_integral"
+                android:summary=" "
+                android:defaultValue="20"
+                android:inputType="number"
+                android:key="max_integral"/>
+
+    </PreferenceCategory>
+</PreferenceScreen>

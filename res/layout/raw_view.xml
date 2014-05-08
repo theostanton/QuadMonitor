@@ -1,20 +1,64 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:orientation="horizontal"
-              android:layout_width="match_parent"
+              android:orientation="vertical"
+              android:layout_width="fill_parent"
               android:layout_height="match_parent">
 
-    <TextView
-            android:layout_width="181dp"
-            android:layout_height="fill_parent"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:id="@+id/rawTexViewtLabel"
-            android:gravity="right"/>
-    <TextView
+    <ScrollView
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:id="@+id/rawTextViewValue"
-            android:layout_gravity="center_vertical"/>
+            android:id="@+id/scrollView"
+            android:layout_weight="5">
+        <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent">
+            <TextView
+                    android:layout_width="181dp"
+                    android:layout_height="fill_parent"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:id="@+id/rawTexViewtLabel"
+                    android:gravity="right"/>
+            <TextView
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:id="@+id/rawTextViewValue"
+                    android:layout_gravity="center_vertical"/>
+        </LinearLayout>
+    </ScrollView>
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                  xmlns:theo="http://theostanton.com"
+                  android:id="@+id/remoteControlLLraw"
+                  android:orientation="horizontal"
+                  android:layout_width="match_parent"
+                  android:layout_height="120dp"
+                  android:paddingBottom="10dp"
+                  android:paddingRight="10dp"
+                  android:paddingLeft="10dp">
+
+        <com.theostanton.QuadMonitor.RemoteControl
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/remoteLeft"
+                theo:xAxisID="YAW"
+                theo:xSticky="true"
+                theo:yAxisID="THROTTLE"
+                theo:ySticky="false"
+                android:layout_weight="1"/>
+
+        <com.theostanton.QuadMonitor.RemoteControl
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/remoteRight"
+                theo:xAxisID="ROLL"
+                theo:xSticky="true"
+                theo:yAxisID="PITCH"
+                theo:ySticky="true"
+                android:layout_weight="1"/>
+
+    </LinearLayout>
+
 </LinearLayout>

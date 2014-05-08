@@ -2,11 +2,11 @@
 
 <LinearLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
-        android:orientation="horizontal"
+        android:orientation="vertical"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent">
     <LinearLayout
-            android:orientation="vertical"
+            android:orientation="horizontal"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:layout_weight="1">
@@ -19,7 +19,7 @@
                 android:padding="10px"/>
 
         <com.theostanton.QuadMonitor.pid.Motor
-                android:id="@+id/motor3"
+                android:id="@+id/motor2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -27,14 +27,14 @@
     </LinearLayout>
 
     <LinearLayout
-            android:orientation="vertical"
+            android:orientation="horizontal"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:layout_weight="1"
             >
 
         <com.theostanton.QuadMonitor.pid.Motor
-                android:id="@+id/motor2"
+                android:id="@+id/motor3"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -46,5 +46,40 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:padding="10px"/>
+    </LinearLayout>
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                  xmlns:theo="http://theostanton.com"
+                  android:id="@+id/remoteControlLLpid"
+                  android:orientation="horizontal"
+                  android:layout_width="match_parent"
+                  android:layout_height="match_parent"
+                  android:layout_weight="1"
+                  android:paddingBottom="10dp"
+                  android:paddingRight="10dp"
+                  android:paddingLeft="10dp">
+
+        <com.theostanton.QuadMonitor.RemoteControl
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/remoteLeft"
+                android:layout_gravity="center_vertical"
+                theo:xAxisID="YAW"
+                theo:xSticky="true"
+                theo:yAxisID="THROTTLE"
+                theo:ySticky="false"
+                android:layout_weight="1"/>
+
+        <com.theostanton.QuadMonitor.RemoteControl
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/remoteRight"
+                android:layout_gravity="center_vertical"
+                theo:xAxisID="ROLL"
+                theo:xSticky="true"
+                theo:yAxisID="PITCH"
+                theo:ySticky="true"
+                android:layout_weight="1"/>
+
     </LinearLayout>
 </LinearLayout>

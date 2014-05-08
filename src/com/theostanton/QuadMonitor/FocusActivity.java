@@ -14,6 +14,8 @@ import com.theostanton.QuadMonitor.dials.Dial;
 import com.theostanton.QuadMonitor.graphs.Graph;
 import com.theostanton.QuadMonitor.pid.Motor;
 
+import java.util.Arrays;
+
 /**
  * Created by theo on 23/04/2014.
  */
@@ -24,6 +26,14 @@ public class FocusActivity extends Activity implements View.OnTouchListener{
     private Component view;
     private Ticker ticker;
     private ScaleGestureDetector mScaleDetector;
+    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            //Log.d(TAG,"onReceive()");
+            //D.setAllRandom();
+            update();
+        }
+    };
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -36,17 +46,14 @@ public class FocusActivity extends Activity implements View.OnTouchListener{
         int[] id = intent.getIntArrayExtra("ID");
         String VIEW = intent.getStringExtra("VIEW");
 
-        if(VIEW.equals("DIAL")) {
-            view = new Dial(this, null,true);
-        }
-        else if(VIEW.equals("MOTOR")) {
-            view = new Motor(this, null,true);
-        }
-        else if(VIEW.equals("GRAPH")) {
+        if (VIEW.equals("DIAL")) {
+            view = new Dial(this, null, true);
+        } else if (VIEW.equals("MOTOR")) {
+            view = new Motor(this, null, true);
+        } else if (VIEW.equals("GRAPH")) {
             d.setFocusGraph(true);
-            view = new Graph(this, null,true);
-        }
-        else Log.e(TAG,"Get VIEw error : " + VIEW);
+            view = new Graph(this, null, true);
+        } else Log.e(TAG, "Get VIEw error : " + VIEW);
 
         view.setOnTouchListener(this);
         mScaleDetector = new ScaleGestureDetector(this, new ScaleListener());
@@ -54,7 +61,7 @@ public class FocusActivity extends Activity implements View.OnTouchListener{
         view.set(id);
 
 
-        Log.d(TAG,"id = " + id);
+        Log.d(TAG, "ids = " + Arrays.toString(id));
 
 
         setContentView(view);
@@ -65,11 +72,10 @@ public class FocusActivity extends Activity implements View.OnTouchListener{
     @Override
     protected void onResume() {
         super.onResume();
-        if(G.automate) {
+        if (G.automate) {
             ticker = new Ticker();
             ticker.start();
-        }
-        else if(G.bluetooth){
+        } else if (G.bluetooth) {
             registerReceiver(broadcastReceiver, new IntentFilter(BluetoothService.BROADCAST_ACTION));
         }
     }
@@ -78,26 +84,16 @@ public class FocusActivity extends Activity implements View.OnTouchListener{
     public void onPause() {
         super.onPause();
         d.setFocusGraph(false);
-        try{
-            if(broadcastReceiver != null) unregisterReceiver(broadcastReceiver);
-        }
-        catch (Exception e){
+        try {
+            if (broadcastReceiver != null) unregisterReceiver(broadcastReceiver);
+        } catch (Exception e) {
 
         }
     }
 
-    public void update(){
+    public void update() {
         view.postInvalidate();
     }
-
-    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            //Log.d(TAG,"onReceive()");
-            //D.setAllRandom();
-            update();
-        }
-    };
 
     @Override
     public boolean onTouch(View view, MotionEvent motionEvent) {

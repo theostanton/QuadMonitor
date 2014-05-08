@@ -16,53 +16,30 @@ import java.util.concurrent.ArrayBlockingQueue;
  */
 public class D{ // Singleton. make thread safer
 
-    private static D instance;
-    private static boolean updating = false;
-
-    private Intent intent;
     public static final String BROADCAST_ACTION = "BROADCAST_ACTION";
-
-
-    private static final String TAG = "D";
-    private static final int LISTLIMIT = 2048;
-    public static int VALUES = 55;
-
-    private static SparseArray<Value> values;
-
-    public static SparseArray<String> names;
-
-    private static Bitmap bitMap;
-
-    //Graphs
-
-    public static int graphWidth = 2000;
-
     public final static int ROLL = 0;
     public final static int PITCH = 1;
     public final static int YAW = 2;
-
     public final static int DES = 0;
     public final static int MES = 1;
     public final static int ERR = 2;
-
     public final static int DESROLL = 0;
     public final static int MESROLL = 1;
     public final static int ERRROLL = 2;
     public final static int GYROROLL = 3;
-    public final static int ACCROLL = 4;
 
+    //Graphs
+    public final static int ACCROLL = 4;
     public final static int DESPITCH = 5;
     public final static int MESPITCH = 6;
     public final static int ERRPITCH = 7;
     public final static int GYROPITCH = 8;
     public final static int ACCPITCH = 9;
-
     public final static int DESYAW = 10;
     public final static int MESYAW = 11;
     public final static int ERRYAW = 12;
     public final static int GYROYAW = 13;
     public final static int ACCYAW = 14;
-
     public final static int pA = 15;
     public final static int iA = 16;
     public final static int dA = 17;
@@ -75,13 +52,29 @@ public class D{ // Singleton. make thread safer
     public final static int pD = 24;
     public final static int iD = 25;
     public final static int dD = 26;
-
-
-    private static HashMap<Integer,LinkedList<Float>> lists;
-
+    public final static int ERRROLLINTEGRAL = 27;
+    public final static int ERRPITCHINTEGRAL = 28;
+    public final static int RXTHROTTLE = 29;
+    public final static int RXYAW = 30;
+    public final static int RXPITCH = 31;
+    public final static int RXROLL = 32;
+    private static final String TAG = "D";
+    private static final int LISTLIMIT = 2048;
+    public static boolean showControls = true;
+    public static int VALUES = 55;
+    public static SparseArray<String> names;
+    public static int graphWidth = 2000;
+    public static boolean fresh = true;
+    public static Random r = new Random();
+    public static float textSize = 60.0f;
+    private static D instance;
+    private static boolean updating = false;
+    private static SparseArray<Value> values;
+    private static Bitmap bitMap;
+    private static SparseArray<LinkedList<Float>> lists;
+    ;
     private static Canvas[] canvases;
-    private static Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);;
-    private Bitmap[]  bitMaps;
+    private static Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
     private static Bitmap  bmp;
     private static int graphW;
     private static int graphH;
@@ -90,18 +83,12 @@ public class D{ // Singleton. make thread safer
     private static boolean focusGraph = false;
     private static int[] graphColours;
     private static float xScale = 2.0f;
-
-    private static int pVal = 0;
-    private static int iVal = 0;
-    private static int dVal = 0;
-
+    private static int pVal = -1;
+    private static int iVal = -1;
+    private static int dVal = -1;
     private static HashMap<Integer,Path> paths;
-
-    public static boolean fresh = true;
-    public static Random r = new Random();
     private static int latest = -1;
     private static float decimalPlaces = 10.0f;
-    public static float textSize = 60.0f;
     private static int pathX;
     private static int raw;
     private static int rawLabels;
@@ -109,15 +96,18 @@ public class D{ // Singleton. make thread safer
     private static String[] axisTitle;
     private static float sampleRate = 20.0f;
     private static int sampleRateOffset = 0;
+    private static Updater updater;
+    private Intent intent;
+    private Bitmap[] bitMaps;
 
     private D() {
         super();
-        Log.e(TAG,"init()");
+        Log.e(TAG, "init()");
         intent = new Intent(BROADCAST_ACTION);
 
         values = new SparseArray<Value>();
-        for(int i=0; i<=26; i++){
-            values.put(i,new Value());
+        for (int i = 0; i <= 28; i++) {
+            values.put(i, new Value());
         }
 
         values.get(pA).enableMovingAverager();
@@ -133,40 +123,55 @@ public class D{ // Singleton. make thread safer
         values.get(iD).enableMovingAverager();
         values.get(dD).enableMovingAverager();
 
-        lists = new HashMap<Integer, LinkedList<Float>>(9);
-        lists.put(DESROLL,new LinkedList<Float>());
-        lists.put(MESROLL,new LinkedList<Float>());
-        lists.put(ERRROLL,new LinkedList<Float>());
-        lists.put(DESPITCH,new LinkedList<Float>());
-        lists.put(MESPITCH,new LinkedList<Float>());
-        lists.put(ERRPITCH,new LinkedList<Float>());
-        lists.put(DESYAW,new LinkedList<Float>());
-        lists.put(MESYAW,new LinkedList<Float>());
-        lists.put(ERRYAW,new LinkedList<Float>());
+        lists = new SparseArray<LinkedList<Float>>(9);
+        lists.put(DESROLL, new LinkedList<Float>());
+        lists.put(MESROLL, new LinkedList<Float>());
+        lists.put(ERRROLL, new LinkedList<Float>());
+        lists.put(DESPITCH, new LinkedList<Float>());
+        lists.put(MESPITCH, new LinkedList<Float>());
+        lists.put(ERRPITCH, new LinkedList<Float>());
+        lists.put(DESYAW, new LinkedList<Float>());
+        lists.put(MESYAW, new LinkedList<Float>());
+        lists.put(ERRYAW, new LinkedList<Float>());
+        lists.put(ERRROLLINTEGRAL, new LinkedList<Float>());
+        lists.put(ERRPITCHINTEGRAL, new LinkedList<Float>());
 
         canvases = new Canvas[3];
 
         bitMaps = new Bitmap[3];
-        bitMaps[ROLL] = Bitmap.createBitmap(1,1, Bitmap.Config.RGB_565);
-        bitMaps[PITCH] = Bitmap.createBitmap(1,1, Bitmap.Config.RGB_565);
-        bitMaps[YAW] = Bitmap.createBitmap(1,1, Bitmap.Config.RGB_565);
+        bitMaps[ROLL] = Bitmap.createBitmap(1, 1, Bitmap.Config.RGB_565);
+        bitMaps[PITCH] = Bitmap.createBitmap(1, 1, Bitmap.Config.RGB_565);
+        bitMaps[YAW] = Bitmap.createBitmap(1, 1, Bitmap.Config.RGB_565);
 
-        graphColours = new int[3];
+        graphColours = new int[4];
         graphColours[0] = Color.BLUE;
         graphColours[1] = Color.GREEN;
         graphColours[2] = Color.RED;
+        graphColours[3] = Color.LTGRAY;
 
         setNames();
     }
 
-    private static void addToList(int ID, float val){
-        lists.get(ID).addLast(val);
-        if(lists.get(ID).size() > LISTLIMIT) lists.get(ID).removeFirst();
+    public static void setCoeffsFromDefaultPreference(int kp, int ki, int kd) {
+        if (pVal == -1) pVal = kp;
+        if (iVal == -1) iVal = ki;
+        if (dVal == -1) dVal = kd;
+        Log.d(TAG, "pVal = " + pVal);
     }
 
-    private synchronized static void updateLists(){
-        for(int i : lists.keySet()){
-            addToList(i,val(i));
+    private static void addToList(int ID, float val) {
+        lists.get(ID).addLast(val);
+        if (lists.get(ID).size() > LISTLIMIT) lists.get(ID).removeFirst();
+    }
+
+    private synchronized static void updateLists() {
+//        for(int i : lists.keySet()){
+//            addToList(i,val(i));
+//        }
+
+        for (int i = 0; i < lists.size(); i++) {
+            int key = lists.keyAt(i);
+            addToList(key, val(key));
         }
 
         updateBitmaps();
@@ -175,55 +180,31 @@ public class D{ // Singleton. make thread safer
 //        bitMaps[PITCH] = createBitMap(new int[]{DESPITCH, MESPITCH, ERRPITCH});
 //        bitMaps[YAW] = createBitMap(new int[]{DESYAW, MESYAW, ERRYAW});
 
-        if(sampleRateOffset < sampleRate) sampleRateOffset++;
+        if (sampleRateOffset < sampleRate) sampleRateOffset++;
         else sampleRateOffset = 0;
 
     }
+
     public static void updateBitmaps(){
-        createBitMap(ROLL, new int[]{DESROLL, MESROLL, ERRROLL});
-        createBitMap(PITCH, new int[]{DESPITCH, MESPITCH, ERRPITCH});
+        createBitMap(ROLL, new int[]{DESROLL, MESROLL, ERRROLL, ERRROLLINTEGRAL});
+        createBitMap(PITCH, new int[]{DESPITCH, MESPITCH, ERRPITCH, ERRPITCHINTEGRAL});
         createBitMap(YAW, new int[]{DESYAW, MESYAW, ERRYAW});
     }
 
-    public void setGraphBounds(int w, int h){
-        if(focusGraph) {
-            focusGraphW = w;
-            focusGraphH = h;
-        }
-        else {
-            graphW = w;
-            graphH = h;
-        }
-
-
-        for(int i=0; i<3; i++){
-            bitMaps[i] = Bitmap.createBitmap(w,h, Bitmap.Config.RGB_565);
-            canvases[i] = new Canvas(bitMaps[i]);
-        }
-
-        updateBitmaps();
-
-    }
-
-    public void setFocusGraph(boolean state){
-        focusGraph = state;
-    }
-
-    private synchronized static void createBitMap(int axisID, int[] IDs){
+    private static void createBitMap(int axisID, int[] IDs) {
 
         //Canvas c = canvases[axisID];
-        float w,h;
+        float w, h;
 
-        if(focusGraph) {
+        if (focusGraph) {
             w = focusGraphW;
             h = focusGraphH;
-        }
-        else {
+        } else {
             w = graphW;
             h = graphH;
         }
-        if(w == 0) w = 1.0f;
-        if(h == 0) h = 1.0f;
+        if (w == 0) w = 1.0f;
+        if (h == 0) h = 1.0f;
         float ctrY = h / 2.0f;
         float yScale = ctrY / 60.0f;
 
@@ -240,17 +221,17 @@ public class D{ // Singleton. make thread safer
         // index : start value in list
         LinkedList<Float> list = lists.get(IDs[0]);
         int size = list.size();
-        int values = (int) ( w / xScale );
+        int values = (int) (w / xScale);
         float y = ctrY;
 
         ListIterator<Float> it;
         int cIndex = 0;
 
-        canvases[axisID].drawColor(Color.BLACK);
-        Path[] paths = new Path[3];
+        //canvases[axisID].drawColor(Color.BLACK);
+        Path[] paths = new Path[4];
 
         int j = 0;
-        for(int id : IDs) {
+        for (int id : IDs) {
             float x = 0.0f;
             float prev;
             float prev2;
@@ -258,43 +239,49 @@ public class D{ // Singleton. make thread safer
             if (values > size) {
                 x = xScale * (values - size);
                 it = list.listIterator();
-                prev  = ctrY;
-                prev2  = ctrY;
+                prev = ctrY;
+                prev2 = ctrY;
             } else {
                 int index = size - values;
                 it = list.listIterator(index);
-                prev  = list.peekFirst();
+                prev = list.peekFirst();
                 prev *= yScale;
                 prev += ctrY;
                 prev2 = prev;
             }
             paths[j] = new Path();
-            paths[j].moveTo(x,prev);
-            x+=xScale;
-            while (it.hasNext()) {
-                y = it.next();
-                y *= yScale;
-                y += ctrY;
-                //c.drawLine(x, prev, x + xScale, y, p);
-                //path.cubicTo(x - xScale, prev2, x,prev, x + xScale,y);
-                paths[j].quadTo(x, prev, x + xScale, y);
-                x += xScale;
-                //prev2 = prev;
-                prev = y;
+            paths[j].moveTo(x, prev);
+            x += xScale;
+            try {
+                while (it.hasNext()) {
+                    y = it.next();
+                    y *= yScale;
+                    y += ctrY;
+                    //c.drawLine(x, prev, x + xScale, y, p);
+                    //path.cubicTo(x - xScale, prev2, x,prev, x + xScale,y);
+                    paths[j].quadTo(x, prev, x + xScale, y);
+                    x += xScale;
+                    //prev2 = prev;
+                    prev = y;
+                }
+                paths[j].lineTo(w, y);
+            } catch (Exception e) {
+                Log.e(TAG, "plot error");
+                e.printStackTrace();
             }
-            paths[j].lineTo(w,y);
             j++;
         }
 
+        p.setStrokeWidth(2.0f);
         canvases[axisID].drawColor(Color.BLACK);
-        for(int i=0; i<3; i++){
+        for (int i = 0; i < IDs.length; i++) {
             p.setColor(graphColours[i]);
             canvases[axisID].drawPath(paths[i], p);
         }
 
         p.setColor(Color.WHITE);
         float xAcc = xScale * sampleRate;
-        for(float xx = w - sampleRateOffset * xScale; xx > 0.0f; xx -= xAcc){
+        for (float xx = w - sampleRateOffset * xScale; xx > 0.0f; xx -= xAcc) {
             canvases[axisID].drawLine(xx, ctrY - 4.0f, xx, ctrY + 4.0f, p);
         }
 
@@ -304,7 +291,7 @@ public class D{ // Singleton. make thread safer
 
     }
 
-    private static Bitmap createBitMapDRAWLINES(int[] IDs){
+    private static Bitmap createBitMapDRAWLINES(int[] IDs) {
 
 
         float w,h;
@@ -324,7 +311,7 @@ public class D{ // Singleton. make thread safer
 //            bmp.recycle();
 //            bmp = null;
 //        }
-        bmp = Bitmap.createBitmap((int)w,(int)h, Bitmap.Config.RGB_565);
+        bmp = Bitmap.createBitmap((int) w, (int) h, Bitmap.Config.RGB_565);
         Canvas c = new Canvas(bmp);
         p.setColor(Color.RED);
         // xScale : x gap between points
@@ -361,23 +348,11 @@ public class D{ // Singleton. make thread safer
                 x += xScale;
                 prev = y;
             }
-            c.drawLine(x,y,w,y,p);
+            c.drawLine(x, y, w, y, p);
         }
 
         return bmp;
 
-    }
-
-    public synchronized Bitmap getBmp(int axisID){
-        if(axisID == -1) return Bitmap.createBitmap(graphW,graphH, Bitmap.Config.RGB_565);
-        while (updating) {
-            try {
-                wait();
-            } catch (Exception e) {
-                Log.e(TAG, "Wait on updating in getBmp error");
-            }
-        }
-        return bitMaps[axisID];
     }
 
     private static void setNames() {
@@ -387,38 +362,47 @@ public class D{ // Singleton. make thread safer
         axisTitle[PITCH] = "Pitch";
         axisTitle[YAW] = "Yaw";
 
-        names = new SparseArray<String>();
-        names.put(GYROROLL, "Gyro Roll");
-        names.put(GYROPITCH, "Gyro Pitch");
-        names.put(GYROYAW, "Gyro Yaw");
-        names.put(ACCROLL, "Accel Roll");
-        names.put(ACCPITCH, "Accel Pitch");
-        names.put(ACCYAW, "Accel Yaw");
-        names.put(MESROLL, "Measured Roll");
-        names.put(MESPITCH, "Measured Pitch");
-        names.put(MESYAW, "Measured Yaw");
-        names.put(ERRROLL, "Error Roll");
-        names.put(ERRPITCH, "Error Pitch");
-        names.put(ERRYAW, "Error Yaw");
+        values.get(GYROROLL).setName("Gyro Roll");
+        values.get(GYROPITCH).setName("Gyro Pitch");
+        values.get(GYROYAW).setName("Gyro Yaw");
+        values.get(ACCROLL).setName("Accel Roll");
+        values.get(ACCPITCH).setName("Accel Pitch");
+        values.get(ACCYAW).setName("Accel Yaw");
+        values.get(MESROLL).setName("Measured Roll");
+        values.get(MESPITCH).setName("Measured Pitch");
+        values.get(MESYAW).setName("Measured Yaw");
+        values.get(ERRROLL).setName("Error Roll");
+        values.get(ERRPITCH).setName("Error Pitch");
+        values.get(ERRYAW).setName("Error Yaw");
+        values.get(ERRROLLINTEGRAL).setName("Roll Error Integral");
+        values.get(ERRPITCHINTEGRAL).setName("Pitch Error Integral");
 
-        names.put(pA, "P A");
-        names.put(iA, "I A");
-        names.put(dA, "D A");
-        names.put(pB, "P B");
-        names.put(iB, "I B");
-        names.put(dB, "D B");
-        names.put(pC, "P C");
-        names.put(iC, "I C");
-        names.put(dC, "D C");
-        names.put(pD, "P D");
-        names.put(iD, "I D");
-        names.put(dD, "D D");
+        values.get(pA).setName("P A");
+        values.get(iA).setName("I A");
+        values.get(dA).setName("D A");
+        values.get(pB).setName("P B");
+        values.get(iB).setName("I B");
+        values.get(dB).setName("D B");
+        values.get(pC).setName("P C");
+        values.get(iC).setName("I C");
+        values.get(dC).setName("D C");
+        values.get(pD).setName("P D");
+        values.get(iD).setName("I D");
+        values.get(dD).setName("D D");
 
 
     }
 
     public static void updated() {
         latest++;
+    }
+
+    public static int getpVal() {
+        return pVal;
+    }
+
+    public static int getiVal() {
+        return iVal;
     }
 
 //    public static void updateLists() {
@@ -448,41 +432,45 @@ public class D{ // Singleton. make thread safer
 //        updateErrors();
 //    }
 
-    public static int getpVal() {
-        return pVal;
+    public static int getdVal() {
+        return dVal;
     }
 
 //    public static void setpVal(int pVal) {
 //        this.pVal = pVal;
 //    }
 
-    public static int getiVal() {
-        return iVal;
+    public static float val(int i) {
+        if (values == null) return 0.0f;
+        return values.get(i).getVal();
     }
 
 //    public static void setiVal(int iVal) {
 //        D.iVal = iVal;
 //    }
 
-    public static int getdVal() {
-        return dVal;
+    public static float max(int i) {
+        return values.get(i).max;
     }
 
 //    public static void setdVal(int dVal) {
 //        D.dVal = dVal;
 //    }
 
-    public static float val(int i){
-        if(values == null) return 0.0f;
-        return values.get(i).getVal();
-    }
-
-    public static float max(int i){
-        return values.get(i).max;
-    }
-
-    public static float min(int i){
+    public static float min(int i) {
         return values.get(i).min;
+    }
+
+    public static void setAllRandom() {
+        for (int i = 0; i < values.size(); i++) {
+            values.valueAt(i).tickRandom();
+        }
+        updateLists();
+        updated();
+    }
+
+    public static String getName(int i) {
+        return values.get(i).getName();
     }
 
 
@@ -538,18 +526,6 @@ public class D{ // Singleton. make thread safer
 //        }
 //    }
 
-    public static void setAllRandom() {
-        for(int i=0; i<values.size(); i++){
-            values.valueAt(i).tickRandom();
-        }
-        updateLists();
-        updated();
-    }
-
-    public static String getName(int i) {
-        return names.get(i);
-    }
-
     public static float getVal(int i) {
         return val(i);
     }
@@ -559,33 +535,10 @@ public class D{ // Singleton. make thread safer
         return String.valueOf(rounded);
     }
 
-    private static Updater updater;
-
-    public int addToPacketQueue(float[] packet){
-        if(updater == null){
-            ///Log.d(TAG,"updater == null");
-            updater = new Updater(packet);
-            updater.start();
-        }
-        else if(updater.isAlive()){
-            //Log.d(TAG,"updater.isAlive()");
-            updater.add(packet);
-        }
-        else {
-            //Log.d(TAG,"updater != null && notAlive()");
-            updater = new Updater(packet);
-            updater.start();
-        }
-        return updater.queueSize();
-    }
-
-
-
-
     public synchronized static void sortPacket(float[] packet) {
-        int i = 2;
+        int i = 0;
         int a = 0;
-        if(packet.length == 26) {
+        if (packet.length == 26) {
             switch (a) {
                 case 0:
                     values.get(GYROROLL).setVal(packet[i++]);
@@ -599,8 +552,10 @@ public class D{ // Singleton. make thread safer
                     values.get(ERRROLL).setVal(packet[i++]);
                     values.get(ERRPITCH).setVal(packet[i++]);
                     values.get(ERRYAW).setVal(packet[i++]);
-                    //values.get(MESYAW).setVal(packet[i++]);
-                    i++;
+                    values.get(ERRROLLINTEGRAL).setVal(packet[i++]);
+                    values.get(ERRPITCHINTEGRAL).setVal(packet[i++]);
+                    i++; //values.get(MESYAW).setVal(packet[i++]);
+
 
                     values.get(pA).setVal(packet[i++]);
                     values.get(iA).setVal(packet[i++]);
@@ -616,31 +571,30 @@ public class D{ // Singleton. make thread safer
                     values.get(dD).setVal(packet[i++]);
             }
             //updateLists();
-        }
-        else {
-            Log.e("Packet Size","" + packet.length);
+        } else {
+            Log.e("Packet Size", "" + packet.length);
         }
     }
 
     public static String getRaw() {
         StringBuilder sb = new StringBuilder();
-        for(int i=0; i<=26; i++){
-            sb.append(i + " " + names.get(i) + " " + getStringVal(i) + "\n");
+        for (int i = 0; i <= 26; i++) {
+            sb.append(i + " " + values.get(i).getName() + " " + getStringVal(i) + "\n");
         }
         return sb.toString();
     }
 
     public static String getRawLabels() {
         StringBuilder sb = new StringBuilder();
-        for(int i=0; i<=26; i++){
-            sb.append(names.get(i) + " \n");
+        for (int i = 0; i < values.size(); i++) {
+            sb.append(values.get(i).getName() + " \n");
         }
         return sb.toString();
     }
 
     public static String getRawValues() {
         StringBuilder sb = new StringBuilder();
-        for(int i=0; i<=26; i++){
+        for (int i = 0; i < values.size(); i++) {
             sb.append(" " + getStringVal(i) + " \n");
         }
         return sb.toString();
@@ -653,7 +607,7 @@ public class D{ // Singleton. make thread safer
     public static void xScaleFactor(float scaleFactor) {
         xScale *= scaleFactor;
         updateLists();
-        Log.d("Scale Factor",String.valueOf(xScale));
+        Log.d("Scale Factor", String.valueOf(xScale));
     }
 
     public static float getXScale() {
@@ -665,35 +619,91 @@ public class D{ // Singleton. make thread safer
     }
 
     public static int getSampleRateOffset() {
-        return (int)( (float)sampleRateOffset * xScale );
+        return (int) ((float) sampleRateOffset * xScale);
     }
 
     public static boolean updating() {
         return updating;
     }
 
+    public static void setValue(int id, float value) { // from bluetooth
+        switch (id) {
+            case BluetoothService.KPid:
+                pVal = (int) (value * 1000.0f);
+                Log.d(TAG, "pVal set to : " + pVal);
+                break;
+            case BluetoothService.KIid:
+                iVal = (int) (value * 1000.0f);
+                Log.d(TAG, "iVal set to : " + iVal);
+                break;
+            case BluetoothService.KDid:
+                dVal = (int) (value * 1000.0f);
+                Log.d(TAG, "dVal set to : " + dVal);
+                break;
+            default:
+                Log.e(TAG, "setValue id error " + id);
+        }
+    }
+
+    public static D getInstance() {
+        if (instance == null) instance = new D();
+        return instance;
+    }
+
+    public void setGraphBounds(int w, int h) {
+        if (focusGraph) {
+            focusGraphW = w;
+            focusGraphH = h;
+        } else {
+            graphW = w;
+            graphH = h;
+        }
+
+
+        for (int i = 0; i < 3; i++) {
+            bitMaps[i] = Bitmap.createBitmap(w, h, Bitmap.Config.RGB_565);
+            canvases[i] = new Canvas(bitMaps[i]);
+        }
+
+        updateBitmaps();
+
+    }
+
+    public void setFocusGraph(boolean state) {
+        focusGraph = state;
+    }
+
+    public synchronized Bitmap getBmp(int axisID) {
+        if (axisID == -1) return Bitmap.createBitmap(graphW, graphH, Bitmap.Config.RGB_565);
+        while (updating) {
+            try {
+                wait();
+            } catch (Exception e) {
+                Log.e(TAG, "Wait on updating in getBmp error");
+            }
+        }
+        return bitMaps[axisID];
+    }
+
+    public int addToPacketQueue(float[] packet) {
+        if (updater == null) {
+            ///Log.d(TAG,"updater == null");
+            updater = new Updater(packet);
+            updater.start();
+        } else if (updater.isAlive()) {
+            //Log.d(TAG,"updater.isAlive()");
+            updater.add(packet);
+        } else {
+            //Log.d(TAG,"updater != null && notAlive()");
+            updater = new Updater(packet);
+            updater.start();
+        }
+        return updater.queueSize();
+    }
+
     public synchronized void notifyFinishedUpdating(){
         updating = false;
         notifyAll();
-    }
-
-    public static void setValue(int id, float value) { // from bluetooth
-        switch (id){
-            case BluetoothService.KPid:
-                pVal = (int)(value * 1000.0f);
-                Log.d(TAG,"pVal set to : " + pVal);
-                break;
-            case BluetoothService.KIid:
-                iVal = (int)(value * 1000.0f);
-                Log.d(TAG,"iVal set to : " + iVal);
-                break;
-            case BluetoothService.KDid:
-                dVal = (int)(value * 1000.0f);
-                Log.d(TAG,"dVal set to : " + dVal);
-                break;
-            default :
-                Log.e(TAG,"setValue id error " + id);
-        }
     }
 
     class Updater extends Thread {
@@ -703,7 +713,7 @@ public class D{ // Singleton. make thread safer
         ArrayBlockingQueue<float[]> packetQueue;
         private boolean running = true;
 
-        public Updater(float[] packet){
+        public Updater(float[] packet) {
             //Log.d(TAG,"constructor");
             packetQueue = new ArrayBlockingQueue<float[]>(10);
             packetQueue.add(packet);
@@ -713,7 +723,7 @@ public class D{ // Singleton. make thread safer
         public void run() {
             int count = 0;
             //Log.d(TAG,"run");
-            while(running) {
+            while (running) {
                 if (!packetQueue.isEmpty()) {
                     updating = true;
                     while (!packetQueue.isEmpty()) {
@@ -754,10 +764,5 @@ public class D{ // Singleton. make thread safer
         public int queueSize() {
             return packetQueue.size();
         }
-    }
-
-    public static D getInstance() {
-        if(instance == null) instance = new D();
-        return instance;
     }
 }

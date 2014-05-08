@@ -2,4 +2,42 @@
 <resources>
     <string name="app_name">Quad Monitor</string>
     <string name="service_name">Bluetooth Service</string>
+
+    <string name="pref_user_name">User Name</string>
+    <string name="pref_user_name_summary">User Name Summary</string>
+    <string name="pref_user_profile">User Profile</string>
+
+    <string name="connection_category">Connectivity</string>
+    <string name="autoconnect_checkbox">Auto Connect</string>
+    <string name="autoconnect_summary_checkbox">Persist in maintaining connection</string>
+
+    <string name="samplerate_pref">Sample Rate</string>
+    <string name="samplerate_summar_pref">Milliseconds between samples</string>
+
+    <string name="quadcopter_category">Quadcopter</string>
+    <string name="quadcopter_mode">Mode</string>
+    <string name="mode_summary">Flight Behavioural Mode</string>
+    <string name="mode">Stable</string>
+
+    <string name="comp_pref">Complementary Filter Ratio</string>
+    <string name="comp_summary">Ratio between Gyro and Accelerometer\nBetween 0 and 1000</string>
+    <string name="p_coeff">Default P Coefficient</string>
+    <string name="i_coeff">Default I Coefficient</string>
+    <string name="d_coeff">Default D Coefficient</string>
+    <string name="max_integral">Error Integral Limit</string>
+    <string-array
+            name="modes">
+        <item>Attitude</item>
+        <item>Stable</item>
+        <item>Altitude Hold</item>
+        <item>Loiter</item>
+    </string-array>
+    <string-array
+            name="mode_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+    </string-array>
+
 </resources>

@@ -8,10 +8,8 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.*;
-import com.theostanton.QuadMonitor.BluetoothService;
-import com.theostanton.QuadMonitor.D;
-import com.theostanton.QuadMonitor.FocusActivity;
-import com.theostanton.QuadMonitor.G;
+import android.widget.LinearLayout;
+import com.theostanton.QuadMonitor.*;
 
 import java.util.ArrayList;
 
@@ -28,31 +26,36 @@ public class BaseFragment extends Fragment implements View.OnTouchListener{
     protected D d;
 
     protected View layoutView;
-    private ScaleGestureDetector mScaleDetector;
-
     protected ArrayList<View> views;
-
     protected Ticker ticker;
     protected float dx = 0.0f;
     protected float dy = 0.0f;
     protected float lastx = 0.0f;
     protected float lasty = 0.0f;
+    private ScaleGestureDetector mScaleDetector;
     private boolean scaleEvent;
-
+    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            //Log.d(TAG,"onReceive()");
+            //D.setAllRandom();
+            update();
+        }
+    };
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        Log.e(TAG,"super.onCreateView shouldn't be called");
+        Log.e(TAG, "super.onCreateView shouldn't be called");
 
 
         return new View(null);
     }
 
-    public void init(){
+    public void init() {
         d = D.getInstance();
         mScaleDetector = new ScaleGestureDetector(getActivity(), new ScaleListener());
-        if(G.automate) {
+        if (G.automate) {
             ticker = new Ticker();
             ticker.start();
         }
@@ -61,7 +64,8 @@ public class BaseFragment extends Fragment implements View.OnTouchListener{
     @Override
     public void onResume() {
         super.onResume();
-        Log.d(TAG,"onResume()");
+        Log.d(TAG, "onResume()");
+        showControls(D.showControls);
         getActivity().registerReceiver(broadcastReceiver, new IntentFilter(BluetoothService.BROADCAST_ACTION));
     }
 
@@ -71,9 +75,31 @@ public class BaseFragment extends Fragment implements View.OnTouchListener{
         getActivity().unregisterReceiver(broadcastReceiver);
     }
 
+    private void showControls(boolean show) {
+        if (show) {
+            LinearLayout remoteLayout = (LinearLayout) getActivity().findViewById(R.id.remoteControlLLgraph);
+            if (remoteLayout != null) remoteLayout.setVisibility(LinearLayout.VISIBLE);
+            remoteLayout = (LinearLayout) getActivity().findViewById(R.id.remoteControlLLdial);
+            if (remoteLayout != null) remoteLayout.setVisibility(LinearLayout.VISIBLE);
+            remoteLayout = (LinearLayout) getActivity().findViewById(R.id.remoteControlLLpid);
+            if (remoteLayout != null) remoteLayout.setVisibility(LinearLayout.VISIBLE);
+            remoteLayout = (LinearLayout) getActivity().findViewById(R.id.remoteControlLLraw);
+            if (remoteLayout != null) remoteLayout.setVisibility(LinearLayout.VISIBLE);
+        } else {
+            LinearLayout remoteLayout = (LinearLayout) getActivity().findViewById(R.id.remoteControlLLgraph);
+            if (remoteLayout != null) remoteLayout.setVisibility(LinearLayout.GONE);
+            remoteLayout = (LinearLayout) getActivity().findViewById(R.id.remoteControlLLdial);
+            if (remoteLayout != null) remoteLayout.setVisibility(LinearLayout.GONE);
+            remoteLayout = (LinearLayout) getActivity().findViewById(R.id.remoteControlLLpid);
+            if (remoteLayout != null) remoteLayout.setVisibility(LinearLayout.GONE);
+            remoteLayout = (LinearLayout) getActivity().findViewById(R.id.remoteControlLLraw);
+            if (remoteLayout != null) remoteLayout.setVisibility(LinearLayout.GONE);
+        }
+    }
+
     public void update(){
         //Log.d(TAG,"update()");
-        if(G.bluetooth) {
+        if (G.bluetooth) {
             while (D.updating()) {
                 try {
                     Thread.sleep(1);
@@ -82,8 +108,8 @@ public class BaseFragment extends Fragment implements View.OnTouchListener{
                 }
             }
         }
-        if(views != null) for(View v: views) v.postInvalidate();
-        else Log.e(TAG,"views == null");// TODO this is happening
+        if (views != null) for (View v : views) v.postInvalidate();
+        else Log.e(TAG, "views == null");// TODO this is happening
     }
 
     @Override
@@ -92,23 +118,23 @@ public class BaseFragment extends Fragment implements View.OnTouchListener{
         //view.postInvalidate();
         scaleEvent = false;
         mScaleDetector.onTouchEvent(motionEvent);
-        if(motionEvent.getPointerCount() > 1) return true;
-        else Log.d(TAG,"no Scale Event");
-        switch(motionEvent.getAction()){
-            case MotionEvent.ACTION_DOWN :
+        if (motionEvent.getPointerCount() > 1) return true;
+        else Log.d(TAG, "no Scale Event");
+        switch (motionEvent.getAction()) {
+            case MotionEvent.ACTION_DOWN:
                 lastx = motionEvent.getX();
                 lasty = motionEvent.getY();
                 dx = 0.0f;
                 dy = 0.0f;
                 break;
-            case MotionEvent.ACTION_MOVE :
+            case MotionEvent.ACTION_MOVE:
                 dx += motionEvent.getX() - lastx;
                 dy += motionEvent.getY() - lasty;
                 lastx = motionEvent.getX();
                 lasty = motionEvent.getY();
                 break;
-            case MotionEvent.ACTION_UP :
-                if(max(dx,dy) < 1.0f) {
+            case MotionEvent.ACTION_UP:
+                if (max(dx, dy) < 1.0f) {
                     Intent intent = new Intent(getActivity(), FocusActivity.class);
 
                     intent.putExtra("ID", new int[]{view.getId()});
@@ -121,15 +147,6 @@ public class BaseFragment extends Fragment implements View.OnTouchListener{
         }
         return true;
     }
-
-    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            //Log.d(TAG,"onReceive()");
-            //D.setAllRandom();
-            update();
-        }
-    };
 
     public void startTicker() {
         if(ticker == null) {

@@ -64,7 +64,8 @@ public class Dial extends Component{
             }
         }
 
-        c.drawText(title, ctrX, top + textY, textP);
+        c.drawText(title, ctrX, ctrY - textP.getTextSize(), textP);
+        //c.drawText(title, ctrX, top + textY, textP);
     }
 
     public void set(int[] i){
