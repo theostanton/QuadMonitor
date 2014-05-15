@@ -18,13 +18,11 @@ import static java.lang.Math.max;
 /**
  * Created by theo on 23/04/2014.
  */
-public class BaseFragment extends Fragment implements View.OnTouchListener{
+public class BaseFragment extends Fragment implements View.OnTouchListener {
 
     protected String TAG = "BaseFragmet";
     protected String VIEW = "UNASSIGNED";
-
     protected D d;
-
     protected View layoutView;
     protected ArrayList<View> views;
     protected Ticker ticker;
@@ -32,6 +30,7 @@ public class BaseFragment extends Fragment implements View.OnTouchListener{
     protected float dy = 0.0f;
     protected float lastx = 0.0f;
     protected float lasty = 0.0f;
+    private String tag = "BaseFragmentTag";
     private ScaleGestureDetector mScaleDetector;
     private boolean scaleEvent;
     private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
@@ -55,23 +54,23 @@ public class BaseFragment extends Fragment implements View.OnTouchListener{
     public void init() {
         d = D.getInstance();
         mScaleDetector = new ScaleGestureDetector(getActivity(), new ScaleListener());
-        if (G.automate) {
-            ticker = new Ticker();
-            ticker.start();
-        }
+        // if (G.automate) {
+        //     if(ticker == null)ticker = new Ticker();
+        //     if(!ticker.isAlive())ticker.start();
+        // }
     }
 
     @Override
     public void onResume() {
         super.onResume();
         Log.d(TAG, "onResume()");
-        showControls(D.showControls);
         getActivity().registerReceiver(broadcastReceiver, new IntentFilter(BluetoothService.BROADCAST_ACTION));
     }
 
     @Override
     public void onPause() {
         super.onPause();
+        //if(ticker != null) if(ticker.isAlive()) ticker.end();
         getActivity().unregisterReceiver(broadcastReceiver);
     }
 
@@ -85,6 +84,10 @@ public class BaseFragment extends Fragment implements View.OnTouchListener{
             if (remoteLayout != null) remoteLayout.setVisibility(LinearLayout.VISIBLE);
             remoteLayout = (LinearLayout) getActivity().findViewById(R.id.remoteControlLLraw);
             if (remoteLayout != null) remoteLayout.setVisibility(LinearLayout.VISIBLE);
+            remoteLayout = (LinearLayout) getActivity().findViewById(R.id.remoteControlLLconsole);
+            if (remoteLayout != null) remoteLayout.setVisibility(LinearLayout.VISIBLE);
+            remoteLayout = (LinearLayout) getActivity().findViewById(R.id.remoteControlLLcoeff);
+            if (remoteLayout != null) remoteLayout.setVisibility(LinearLayout.VISIBLE);
         } else {
             LinearLayout remoteLayout = (LinearLayout) getActivity().findViewById(R.id.remoteControlLLgraph);
             if (remoteLayout != null) remoteLayout.setVisibility(LinearLayout.GONE);
@@ -94,10 +97,14 @@ public class BaseFragment extends Fragment implements View.OnTouchListener{
             if (remoteLayout != null) remoteLayout.setVisibility(LinearLayout.GONE);
             remoteLayout = (LinearLayout) getActivity().findViewById(R.id.remoteControlLLraw);
             if (remoteLayout != null) remoteLayout.setVisibility(LinearLayout.GONE);
+            remoteLayout = (LinearLayout) getActivity().findViewById(R.id.remoteControlLLconsole);
+            if (remoteLayout != null) remoteLayout.setVisibility(LinearLayout.GONE);
+            remoteLayout = (LinearLayout) getActivity().findViewById(R.id.remoteControlLLcoeff);
+            if (remoteLayout != null) remoteLayout.setVisibility(LinearLayout.GONE);
         }
     }
 
-    public void update(){
+    public void update() {
         //Log.d(TAG,"update()");
         if (G.bluetooth) {
             while (D.updating()) {
@@ -149,14 +156,14 @@ public class BaseFragment extends Fragment implements View.OnTouchListener{
     }
 
     public void startTicker() {
-        if(ticker == null) {
+        if (ticker == null) {
             ticker = new Ticker();
         }
-        if(!ticker.isAlive()) ticker.start();
+        if (!ticker.isAlive()) ticker.start();
     }
 
     public void stopTicker() {
-        if(ticker == null) ticker = new Ticker();
+        if (ticker == null) ticker = new Ticker();
         ticker.end();
     }
 
@@ -167,12 +174,12 @@ public class BaseFragment extends Fragment implements View.OnTouchListener{
         private boolean running = true;
 
         public Ticker() {
-            Log.d("Ticker", "Create");
+            Log.d(TAG, "Ticker Create");
         }
 
         @Override
         public void run() {
-            Log.d("Ticker", "Start");
+            Log.d(TAG, "Ticker Start");
             while (running) {
                 try {
                     //if (Global.automate) {
@@ -185,14 +192,14 @@ public class BaseFragment extends Fragment implements View.OnTouchListener{
                         sleep(500);
                     }
                 } catch (Exception e) {
-                    Log.e("Ticker", "Catch error");
+                    Log.e(TAG, "Ticker error");
                     e.printStackTrace();
                 }
             }
 
         }
 
-        public void end(){
+        public void end() {
             running = false;
         }
 
@@ -203,8 +210,8 @@ public class BaseFragment extends Fragment implements View.OnTouchListener{
         @Override
         public boolean onScale(ScaleGestureDetector detector) {
             scaleEvent = true;
-            Log.d(TAG,detector.getCurrentSpanY() + " SpanY");
-            Log.d(TAG,detector.getScaleFactor() + " scale Factor");
+            Log.d(TAG, detector.getCurrentSpanY() + " SpanY");
+            Log.d(TAG, detector.getScaleFactor() + " scale Factor");
             D.xScaleFactor(detector.getScaleFactor());
             //mScaleFactor *= detector.getScaleFactor();
 

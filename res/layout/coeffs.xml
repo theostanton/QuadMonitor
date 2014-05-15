@@ -1,29 +1,71 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:orientation="horizontal"
-              android:layout_width="fill_parent"
-              android:layout_height="fill_parent"
-        >
-    <com.theostanton.QuadMonitor.Coeff
-            android:id="@+id/coeffViewP"
-            android:layout_width="wrap_content"
-            android:layout_height="fill_parent"
-            android:layout_weight="1"
-            android:layout_marginLeft="5dp" android:layout_marginTop="10dp" android:layout_marginRight="5dp"
-            android:layout_marginBottom="10dp"/>
-    <com.theostanton.QuadMonitor.Coeff
-            android:id="@+id/coeffViewI"
-            android:layout_width="wrap_content"
-            android:layout_height="fill_parent"
-            android:layout_weight="1"
-            android:layout_marginLeft="5dp" android:layout_marginTop="10dp" android:layout_marginRight="5dp"
-            android:layout_marginBottom="10dp"/>
-    <com.theostanton.QuadMonitor.Coeff
-            android:id="@+id/coeffViewD"
-            android:layout_width="wrap_content"
-            android:layout_height="fill_parent"
-            android:layout_weight="1"
-            android:layout_marginLeft="5dp" android:layout_marginTop="10dp" android:layout_marginRight="5dp"
-            android:layout_marginBottom="10dp"/>
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent">
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                  android:orientation="horizontal"
+                  android:layout_width="fill_parent"
+                  android:layout_height="fill_parent"
+                  android:layout_weight="3">
+
+        <com.theostanton.QuadMonitor.Coeff
+                android:id="@+id/coeffViewP"
+                android:layout_width="wrap_content"
+                android:layout_height="fill_parent"
+                android:layout_weight="1"
+                android:layout_marginLeft="5dp" android:layout_marginTop="10dp" android:layout_marginRight="5dp"
+                android:layout_marginBottom="10dp"/>
+        <com.theostanton.QuadMonitor.Coeff
+                android:id="@+id/coeffViewI"
+                android:layout_width="wrap_content"
+                android:layout_height="fill_parent"
+                android:layout_weight="1"
+                android:layout_marginLeft="5dp" android:layout_marginTop="10dp" android:layout_marginRight="5dp"
+                android:layout_marginBottom="10dp"/>
+        <com.theostanton.QuadMonitor.Coeff
+                android:id="@+id/coeffViewD"
+                android:layout_width="wrap_content"
+                android:layout_height="fill_parent"
+                android:layout_weight="1"
+                android:layout_marginLeft="5dp" android:layout_marginTop="10dp" android:layout_marginRight="5dp"
+                android:layout_marginBottom="10dp"/>
+
+    </LinearLayout>
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                  xmlns:theo="http://theostanton.com"
+                  android:layout_weight="1"
+                  android:id="@+id/remoteControlLLcoeff"
+                  android:orientation="horizontal"
+                  android:layout_width="match_parent"
+                  android:layout_height="120dp"
+                  android:paddingBottom="10dp"
+                  android:paddingRight="10dp"
+                  android:paddingLeft="10dp">
+
+        <com.theostanton.QuadMonitor.RemoteControl
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/remoteLeft"
+                theo:xAxisID="YAW"
+                theo:xSticky="true"
+                theo:yAxisID="THROTTLE"
+                theo:ySticky="false"
+                android:layout_weight="1"/>
+
+        <com.theostanton.QuadMonitor.RemoteControl
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/remoteRight"
+                theo:xAxisID="ROLL"
+                theo:xSticky="true"
+                theo:yAxisID="PITCH"
+                theo:ySticky="true"
+                android:layout_weight="1"/>
+
+    </LinearLayout>
+
 </LinearLayout>

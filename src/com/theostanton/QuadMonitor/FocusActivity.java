@@ -73,8 +73,9 @@ public class FocusActivity extends Activity implements View.OnTouchListener{
     protected void onResume() {
         super.onResume();
         if (G.automate) {
-            ticker = new Ticker();
-            ticker.start();
+            // ticker = new Ticker();
+            // ticker.start();
+            registerReceiver(broadcastReceiver, new IntentFilter(BluetoothService.BROADCAST_ACTION));
         } else if (G.bluetooth) {
             registerReceiver(broadcastReceiver, new IntentFilter(BluetoothService.BROADCAST_ACTION));
         }
@@ -93,6 +94,11 @@ public class FocusActivity extends Activity implements View.OnTouchListener{
 
     public void update() {
         view.postInvalidate();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
     }
 
     @Override

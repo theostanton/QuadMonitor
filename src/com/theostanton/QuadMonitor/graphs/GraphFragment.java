@@ -16,14 +16,13 @@ import java.util.ArrayList;
 public class GraphFragment extends BaseFragment {
 
     private static final String TAG = "Graph Fragment";
-
     private static final int ROLLMES = 0;
     private static final int ROLLERR = 1;
     private static final int PITCHMES = 2;
     private static final int PITCHERR = 3;
     private static final int YAWMES = 4;
     private static final int YAWERR = 5;
-
+    private String tag = "Graph Tag";
     private Graph graphRoll;
     private Graph graphPitch;
     private Graph graphYaw;

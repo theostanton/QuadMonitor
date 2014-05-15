@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-       >
+        >
 
     <item android:id="@+id/bluetooth_action"
           android:title="Bluetooth"
@@ -16,7 +16,7 @@
     <item android:id="@+id/automate_action"
           android:title="Automate"
           android:showAsAction="never"
-          android:checkable="true" />
+          android:checkable="true"/>
 
     <item android:id="@+id/update_coeff_action"
           android:title="Update Coeffs"
@@ -32,5 +32,11 @@
           android:checkable="true"
           android:showAsAction="never"
           android:checked="true"/>
+
+    <item android:id="@+id/info_action"
+          android:title="Display Info"
+          android:checkable="true"
+          android:showAsAction="never"
+          android:checked="false"/>
 
 </menu>

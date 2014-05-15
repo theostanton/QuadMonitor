@@ -101,6 +101,8 @@ public class D{ // Singleton. make thread safer
     private static String console;
     private Intent intent;
     private Bitmap[] bitMaps;
+    private float[] orientation;
+    private float[] orientationOffset;
 
     private D() {
         super();
@@ -111,6 +113,8 @@ public class D{ // Singleton. make thread safer
         for (int i = 0; i <= 28; i++) {
             values.put(i, new Value());
         }
+
+        orientationOffset = new float[]{0.0f, 0.0f, 0.0f};
 
         values.get(pA).enableMovingAverager();
         values.get(iA).enableMovingAverager();
@@ -166,7 +170,7 @@ public class D{ // Singleton. make thread safer
         if (lists.get(ID).size() > LISTLIMIT) lists.get(ID).removeFirst();
     }
 
-    private synchronized static void updateLists() {
+    public synchronized static void updateLists() {
 //        for(int i : lists.keySet()){
 //            addToList(i,val(i));
 //        }
@@ -193,7 +197,7 @@ public class D{ // Singleton. make thread safer
         createBitMap(YAW, new int[]{DESYAW, MESYAW, ERRYAW});
     }
 
-    private static void createBitMap(int axisID, int[] IDs) {
+    private static synchronized void createBitMap(int axisID, int[] IDs) {
 
         //Canvas c = canvases[axisID];
         float w, h;
@@ -663,6 +667,43 @@ public class D{ // Singleton. make thread safer
         freshConsole = true;
     }
 
+    public static void setControl(int controlID, int val) {
+        switch (controlID) {
+            case RXPITCH:
+                values.get(DESPITCH).setVal(val);
+                updateError(PITCH);
+                break;
+            case RXROLL:
+                values.get(DESROLL).setVal(val);
+                updateError(ROLL);
+                break;
+//            case RXTHROTTLE :
+//                values.get(DESTHROTTLE).setVal(val);
+//                break;
+            case RXYAW:
+                values.get(DESYAW).setVal(val);
+                updateError(YAW);
+                break;
+        }
+    }
+
+    private static void updateError(int axisID) {
+        switch (axisID) {
+            case ROLL:
+                values.get(ERRROLL).setVal(
+                        -val(MESROLL) - val(DESROLL));
+                break;
+            case PITCH:
+                values.get(ERRPITCH).setVal(
+                        -val(MESPITCH) - val(DESPITCH));
+                break;
+            case YAW:
+                values.get(ERRYAW).setVal(
+                        -val(MESYAW) - val(DESYAW));
+                break;
+        }
+    }
+
     public void setGraphBounds(int w, int h) {
         if (focusGraph) {
             focusGraphW = w;
@@ -714,9 +755,26 @@ public class D{ // Singleton. make thread safer
         return updater.queueSize();
     }
 
-    public synchronized void notifyFinishedUpdating(){
+    public synchronized void notifyFinishedUpdating() {
         updating = false;
         notifyAll();
+    }
+
+    public void setOrientationOffset(float[] orientation) {
+        orientationOffset = orientation;
+    }
+
+    public void setOrientation(float[] orientation) {
+        values.get(MESROLL).setVal(orientation[2]); //- orientationOffset[2]);
+        values.get(MESPITCH).setVal(orientation[1]); // - orientationOffset[1]);
+        values.get(MESYAW).setVal(orientation[0]); // orientationOffset[0]);
+        updateErrors();
+        updateLists();
+    }
+
+    private void updateErrors() {
+        int i = 0;
+        while (i < 3) updateError(i++);
     }
 
     class Updater extends Thread {

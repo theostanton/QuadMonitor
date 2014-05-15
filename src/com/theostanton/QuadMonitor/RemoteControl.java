@@ -64,8 +64,8 @@ public class RemoteControl extends View implements View.OnTouchListener {
         linePaint.setStyle(Paint.Style.STROKE);
         linePaint.setColor(Color.BLACK);
 
-        xVal = 90;
-        yVal = 90;
+        xVal = 0;
+        yVal = 0;
         point = new Point((int) sqBounds.centerX(), (int) sqBounds.centerX());
         ctrPoint = new Point((int) sqBounds.centerX(), (int) sqBounds.centerX());
 
@@ -94,30 +94,36 @@ public class RemoteControl extends View implements View.OnTouchListener {
 
         joyStick = new RectF(xx - joyRadius, yy - joyRadius, xx + joyRadius, yy + joyRadius);
 
-
-//        float ratio = (float)(ctrPoint.x - point.x) / (float)(ctrPoint.y - point.y);
-//        float angle = (float) Math.atan2( (double)(ctrPoint.y - point.y), (double)(ctrPoint.x - point.x) );
-
-        // float dx = joyRadius *
-
         xx -= sqBounds.left;
         yy -= sqBounds.top;
 
         xVal = 90 * xx / (diameter + 1) - 45;
         yVal = 90 * yy / (diameter + 1) - 45;
 
-        //Log.d(TAG,"yVal = " + yVal);
-        //Log.d(TAG,"xVal = " + xVal);
+    }
 
+    private void sendVals(boolean released) {
+
+        if (released) {
+            yVal = 0;
+            xVal = 0;
+        }
         Intent intent = new Intent(BluetoothService.BTSENDMESSAGE);
         intent.putExtra("id", xID);
         intent.putExtra("Value", xVal);
         getContext().sendBroadcast(intent);
+        D.setControl(xID, xVal);
 
         intent = new Intent(BluetoothService.BTSENDMESSAGE);
         intent.putExtra("id", yID);
         intent.putExtra("Value", yVal);
+        D.setControl(yID, yVal);
         getContext().sendBroadcast(intent);
+
+        if (!G.automate) {
+            D.updateLists();
+            getContext().sendBroadcast(new Intent(BluetoothService.BROADCAST_ACTION));
+        }
     }
 
     @Override
@@ -166,6 +172,7 @@ public class RemoteControl extends View implements View.OnTouchListener {
         if (ySticky) yy = (int) sqBounds.centerY();
         if (xSticky) xx = (int) sqBounds.centerX();
         updateVals(xx, yy);
+        sendVals(true);
     }
 
     @Override
@@ -175,6 +182,7 @@ public class RemoteControl extends View implements View.OnTouchListener {
             case MotionEvent.ACTION_DOWN:
             case MotionEvent.ACTION_MOVE:
                 updateVals((int) ev.getX(), (int) ev.getY());
+                sendVals(false);
                 break;
             case MotionEvent.ACTION_UP:
                 releaseTouch((int) ev.getX(), (int) ev.getY());

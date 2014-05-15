@@ -92,7 +92,9 @@ public class ConsoleFragment extends BaseFragment {
         @Override
         public void run() {
             while (scrollDelta > 0.0f) {
-                float scrollBy = scrollDelta / 20.0f + 1.0f;
+                float scrollBy;
+                if (scrollDelta > 100.0f) scrollBy = 100.0f;
+                else scrollBy = scrollDelta / 20.0f + 1.0f;
                 consoleTextView.scrollBy(0, (int) scrollBy);
                 scrollDelta -= (float) (int) scrollBy;
                 try {

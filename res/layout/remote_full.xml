@@ -15,11 +15,7 @@
             theo:xSticky="true"
             theo:yAxisID="THROTTLE"
             theo:ySticky="false"
-            android:layout_weight="1"
-            android:paddingBottom="10dp"
-            android:paddingRight="10dp"
-            android:paddingLeft="10dp"
-            android:paddingTop="10dp" android:padding="10dp"/>
+            android:layout_weight="1"/>
 
     <com.theostanton.QuadMonitor.RemoteControl
             android:layout_width="wrap_content"
@@ -30,10 +26,6 @@
             theo:xSticky="true"
             theo:yAxisID="PITCH"
             theo:ySticky="true"
-            android:layout_weight="1"
-            android:paddingBottom="10dp"
-            android:paddingRight="10dp"
-            android:paddingLeft="10dp"
-            android:paddingTop="10dp" android:padding="10dp"/>
+            android:layout_weight="1"/>
 
 </LinearLayout>

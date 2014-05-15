@@ -21,41 +21,36 @@ import java.util.UUID;
 public class BluetoothService extends Service implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     public static final String BROADCAST_ACTION = "FRESHBTDATA";
+    public static final String CONNECT = "CONNECT";
+    public static final String DISCONNECT = "DISCONNECT";
     public static final String BTSENDMESSAGE = "BTSENDMESSAGE";
-    private final BroadcastReceiver receiver = new BroadcastReceiver() {
+    public static final String GETCOEFFS = "GETCOEFFS";
 
-        private static final String TAG = "BTBroadcastReceiver";
 
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            if (action.equals(BTSENDMESSAGE)) {
-                int id = intent.getIntExtra("id", 0);
-                int value = intent.getIntExtra("Value", 0);
-                //Log.d(TAG, "Message I = " + id);
-                //Log.d(TAG, "Message Value = " + value);
-                sendMessage(id, getInt16(value));
-            } else {
-                Log.d(TAG, action);
-            }
-        }
-    };
     public static final int KPid = 1;
     public static final int KIid = 2;
     public static final int KDid = 3;
     public static final int RATEid = 4;
     public static final int COMPid = 5;
     public static final int MAXINTEGRALid = 6;
+    public static final int PINGid = 7;
+    public static final int RXPINGid = 8;
     public static final int THROTTLEid = D.RXTHROTTLE;
     public static final int YAWid = D.RXYAW;
     public static final int PITCHLid = D.RXPITCH;
     public static final int ROLLid = D.RXROLL;
+
+    //private Sender sender;
+
+
+
     private static final String TAG = "BluetoothService";
     private static final UUID MY_UUID = UUID
             .fromString("00001101-0000-1000-8000-00805F9B34FB");
     private static InputStream inStream;
     private static OutputStream outStream;
     private final Handler handler = new Handler();
+    private Receiver receiver;
     private SharedPreferences.OnSharedPreferenceChangeListener preferenceListener;
     private D d;
     private Intent intent;
@@ -64,11 +59,40 @@ public class BluetoothService extends Service implements SharedPreferences.OnSha
     private BluetoothSocket btSocket;
     private BluetoothDevice bluetoothDevice;
 
-    public static void sendMessage(String message) {
-        Log.d(TAG, "sendMessage() : " + message);
+    private static byte[] getInt16(int val) {
+        byte[] bytes = new byte[2];
+        bytes[0] = (byte) val; // LSB
+        bytes[1] = (byte) (val >> 8); // MSB
+        // Log.d("bytes[0]",Integer.toBinaryString(bytes[0]));
+        // Log.d("bytes[1]",Integer.toBinaryString(bytes[1]));
+        return bytes;
     }
 
-    public static void getCoeffs() { // requests coeff values
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        d = D.getInstance();
+        Log.d(TAG, "onCreate()");
+        intent = new Intent(BROADCAST_ACTION);
+        bluetooth = BluetoothAdapter.getDefaultAdapter();
+        receiver = new Receiver();
+
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(BTSENDMESSAGE);
+        filter.addAction(CONNECT);
+        filter.addAction(DISCONNECT);
+        filter.addAction(GETCOEFFS);
+        registerReceiver(receiver, filter);
+
+//        sender = new Sender();
+//        sender.start();
+
+        SharedPreferences prefs =
+                PreferenceManager.getDefaultSharedPreferences(this);
+        prefs.registerOnSharedPreferenceChangeListener(this);
+    }
+
+    public void getCoeffs() { // requests coeff values
         Log.d(TAG, "getCoeffs()");
         try {
             outStream.write((byte) (KPid + 100));
@@ -80,93 +104,33 @@ public class BluetoothService extends Service implements SharedPreferences.OnSha
         }
     }
 
-    public static void setCoeffs() { // requests coeff values
-        Log.d(TAG, "setCoeffs()");
-        sendMessage(KPid, getInt16(D.getpVal()));
-        sendMessage(KIid, getInt16(D.getiVal()));
-        sendMessage(KDid, getInt16(D.getdVal()));
+    public void setCoeffs() { // requests coeff values
+        // Log.d(TAG, "setCoeffs()");
+        // sendMessage(KPid, getInt16(D.getpVal()));
+        // sendMessage(KIid, getInt16(D.getiVal()));
+        // sendMessage(KDid, getInt16(D.getdVal()));
     }
 
-    public static String getValue(int id){
-        Log.d(TAG,"Getting id: " + id);
-        try {
-            outStream.write((byte)(id+100));
-            return "Sent";
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return "Not Sent";
-    }
-
-    public static void sendValue(int id, int value) {
+    public void sendValue(int id, int value) {
         sendMessage(id, getInt16(value));
+        //sender.put(id,getInt16(value));
     }
 
-    private static void sendMessage(int id, byte[] bytes) {
-        Log.d(TAG, "Sending id : " + id);
-        byte[] data = new byte[bytes.length + 1];
-        data[0] = (byte)id;
-        data[1] = bytes[1]; // MSB
-        data[2] = bytes[0]; // LSB
-
-        // data[0] = 1;
-        // data[1] = 0;
-        // data[2] = 3;
-
-        try {
-            outStream.write(data);
-        } catch (IOException e) {
-            Log.d(TAG,"outStream.write() error");
-            e.printStackTrace();
-        }
-    }
-
-    private static byte[] getInt16(int val) {
-        byte[] bytes = new byte[2];
-        bytes[0] = (byte) val; // LSB
-        bytes[1] = (byte) (val >> 8); // MSB
-        // Log.d("bytes[0]",Integer.toBinaryString(bytes[0]));
-        // Log.d("bytes[1]",Integer.toBinaryString(bytes[1]));
-        return bytes;
-    }
-
-//    public void sendMessage(int i, int val){
-//        switch (i){
-//            case P:
-//            case I:
-//            case D:
-//                sendMessage(i,)
-//
-//        }
-//    }
-
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        d = D.getInstance();
-        Log.d(TAG, "onCreate()");
-        intent = new Intent(BROADCAST_ACTION);
-        bluetooth = BluetoothAdapter.getDefaultAdapter();
+    public void connect() {
+        Log.d(TAG, "Connect Bluteooth");
         Toast.makeText(this, "Connecting via bluetooth...", Toast.LENGTH_LONG).show();
         if (checkBTState()) {
             if (connectToDevice()) {
                 listen = new Listen();
                 listen.start();
+
+                setCoeffs();
             }
         }
-
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(BTSENDMESSAGE);
-        registerReceiver(receiver, filter);
-
-        SharedPreferences prefs =
-                PreferenceManager.getDefaultSharedPreferences(this);
-        prefs.registerOnSharedPreferenceChangeListener(this);
     }
 
-    @Override
-    public void onDestroy() {
+    public void disConnect() {
+        Log.d(TAG, "Disconnect Bluteooth");
         if (listen != null && listen.isAlive()) listen.end();
         try {
             if (outStream != null) outStream.close();
@@ -175,8 +139,35 @@ public class BluetoothService extends Service implements SharedPreferences.OnSha
         } catch (IOException e) {
             e.printStackTrace();
         }
-        super.onDestroy();
         Toast.makeText(this, "Bluetooth Disconnected.", Toast.LENGTH_SHORT).show();
+    }
+
+    private synchronized void sendMessage(int id, byte[] bytes) {
+        if (btSocket != null) {
+            if (btSocket.isConnected()) {
+                //Log.d(TAG, "Sending id : " + id);
+                byte[] data = new byte[bytes.length + 1];
+                data[0] = (byte) id;
+                data[1] = bytes[1]; // MSB
+                data[2] = bytes[0]; // LSB
+
+                try {
+                    outStream.write(data);
+                } catch (IOException e) {
+                    Log.d(TAG, "outStream.write() error");
+                    e.printStackTrace();
+                }
+            } else {
+                Log.d(TAG, "btSocket not connected");
+            }
+        }
+
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        disConnect();
         unregisterReceiver(receiver);
         PreferenceManager.getDefaultSharedPreferences(this).
                 unregisterOnSharedPreferenceChangeListener(this);
@@ -247,31 +238,90 @@ public class BluetoothService extends Service implements SharedPreferences.OnSha
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-
+        Log.e(TAG, "onSharedPreferenceChanged()");
 
         if (key.equals("sampleratePref")) {
             String str = sharedPreferences.getString("sampleratePref", "666");
             int rate = Integer.valueOf(str);
             Log.d(TAG, "rate = " + rate);
-            BluetoothService.sendValue(BluetoothService.RATEid, rate);
+            sendValue(BluetoothService.RATEid, rate);
         } else if (key.equals("compPref")) {
             String str = sharedPreferences.getString("compPref", "666");
             int comp = Integer.valueOf(str);
-            //int iComp = (int)(comp * 1000.0f);
             Log.d(TAG, "comp = " + comp);
-            BluetoothService.sendValue(BluetoothService.COMPid, comp);
+            sendValue(BluetoothService.COMPid, comp);
         } else if (key.equals("max_integral")) {
             String str = sharedPreferences.getString("max_integral", "666");
             int comp = Integer.valueOf(str);
-            //int iComp = (int)(comp * 1000.0f);
             Log.d(TAG, "max_integral = " + comp);
-            BluetoothService.sendValue(BluetoothService.MAXINTEGRALid, comp);
+            sendValue(BluetoothService.MAXINTEGRALid, comp);
+        } else if (key.equals("ping_checkbox")) {
+            boolean state = sharedPreferences.getBoolean("ping_checkbox", true);
+            Log.d(TAG, "ping_checkbox = " + state);
+            sendValue(BluetoothService.PINGid, state ? 1 : 0);
+        } else if (key.equals("rx_ping_checkbox")) {
+            boolean state = sharedPreferences.getBoolean("rx_ping_checkbox", true);
+            Log.d(TAG, "rx_ping_checkbox = " + state);
+            sendValue(BluetoothService.RXPINGid, state ? 1 : 0);
         } else {
             Log.e(TAG, "onSharedPreferenceChanged() missed " + key);
         }
 
 
     }
+//    class Sender extends Thread {
+//
+//        private boolean running = true;
+//        private SparseArray<byte[]> sparseArray;
+//
+//        public Sender(){
+//            sparseArray = new SparseArray<byte[]>();
+//        }
+//
+//        @Override
+//        public void run() {
+//            while(running){
+//                if(sparseArray.size() > 0){
+//                    int key = sparseArray.keyAt(0);
+//                    Log.d(TAG,"Key = " + key);
+//                    sendMessage(key,sparseArray.get(key));
+//                    sparseArray.remove(key);
+//                }
+//                try {
+//                    Thread.sleep(10);
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        }
+//
+//        public void put(int id, byte[] value){
+//            sparseArray.put(id,value);
+//        }
+//
+//        private synchronized void sendMessage(int id, byte[] bytes) {
+//            if(btSocket != null) {
+//                if (btSocket.isConnected()) {
+//                    //Log.d(TAG, "Sending id : " + id);
+//                    byte[] data = new byte[bytes.length + 1];
+//                    data[0] = (byte) id;
+//                    data[1] = bytes[1]; // MSB
+//                    data[2] = bytes[0]; // LSB
+//
+//                    try {
+//                        outStream.write(data);
+//                    } catch (IOException e) {
+//                        Log.d(TAG, "outStream.write() error");
+//                        e.printStackTrace();
+//                    }
+//                } else {
+//                    Log.d(TAG, "btSocket not connected");
+//                }
+//            }
+//
+//        }
+//    }
+
 
     class Listen extends Thread {
 
@@ -284,7 +334,6 @@ public class BluetoothService extends Service implements SharedPreferences.OnSha
             } catch (IOException e) {
                 Log.e("Listen", "Couldn't get instream");
             }
-            setCoeffs();
         }
 
         public void run() {
@@ -349,6 +398,30 @@ public class BluetoothService extends Service implements SharedPreferences.OnSha
 
         public void end() {
             running = false;
+        }
+    }
+
+    class Receiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if (action.equals(BTSENDMESSAGE)) {
+                int id = intent.getIntExtra("id", 0);
+                int value = intent.getIntExtra("Value", 0);
+                //Log.d(TAG, "Message I = " + id);
+                //Log.d(TAG, "Message Value = " + value);
+                sendMessage(id, getInt16(value));
+                //sender.put(id, getInt16(value));
+            } else if (action.equals(CONNECT)) {
+                connect();
+            } else if (action.equals(DISCONNECT)) {
+                disConnect();
+            } else if (action.equals(GETCOEFFS)) {
+                getCoeffs();
+            } else {
+                Log.d(TAG, action);
+            }
         }
     }
 

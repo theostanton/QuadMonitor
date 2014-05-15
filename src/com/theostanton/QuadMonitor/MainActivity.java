@@ -33,12 +33,13 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
     private D d;
     private PagerAdapter pagerAdapter;
 
-    private Intent intent;
+    private Intent bluetoothIntent;
+    private Intent mockerIntent;
 
     private ViewPager mViewPager;
     private BaseFragment currFragment;
     private Context mContext;
-    //private Ticker ticker;
+    private Ticker ticker;
     private int position = 0;
 
     @Override
@@ -60,18 +61,13 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
         //mContext = getBaseContext();
         d = D.getInstance();
         setContentView(R.layout.main);
-
-        // Create the adapter that will return a fragment for each of the three primary sections
-        // of the app.
         pagerAdapter = new PagerAdapter(getSupportFragmentManager());
 
-        // Specify that we will be displaying tabs in the action bar.
         final ActionBar actionBar = getActionBar();
         actionBar.setHomeButtonEnabled(false);
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 
-        // Set up the ViewPager, attaching the adapter and setting up a listener for when the
-        // user swipes between sections.
+
         mViewPager = (ViewPager) findViewById(R.id.pager);
         mViewPager.setAdapter(pagerAdapter);
         mViewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
@@ -89,7 +85,11 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
             );
         }
 
-        intent = new Intent(this,BluetoothService.class);
+
+        bluetoothIntent = new Intent(this, BluetoothService.class);
+        startService(bluetoothIntent);
+        mockerIntent = new Intent(this, MockerService.class);
+        startService(mockerIntent);
 
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
@@ -102,6 +102,15 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
         D.setCoeffsFromDefaultPreference(kp, ki, kd);
 
         showControls(D.showControls);
+
+        ticker = new Ticker();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        stopService(bluetoothIntent);
+        stopService(mockerIntent);
     }
 
     @Override
@@ -119,9 +128,16 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
     }
 
     public void update(){
-        pagerAdapter = new PagerAdapter(getSupportFragmentManager());
-        mViewPager = (ViewPager) findViewById(R.id.pager);
-        mViewPager.setAdapter(pagerAdapter);
+        runOnUiThread(new Thread(new Runnable() {
+            public void run() {
+                pagerAdapter = new PagerAdapter(getSupportFragmentManager());
+                pagerAdapter.notifyDataSetChanged();
+                mViewPager = (ViewPager) findViewById(R.id.pager);
+                mViewPager.setAdapter(pagerAdapter);
+            }
+        }));
+        // mViewPager = (ViewPager) findViewById(R.id.pager);
+        // mViewPager.setAdapter(pagerAdapter);
     }
 
     @Override
@@ -144,6 +160,8 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
             if (remoteLayout != null) remoteLayout.setVisibility(LinearLayout.VISIBLE);
             remoteLayout = (LinearLayout) this.findViewById(R.id.remoteControlLLconsole);
             if (remoteLayout != null) remoteLayout.setVisibility(LinearLayout.VISIBLE);
+            remoteLayout = (LinearLayout) this.findViewById(R.id.remoteControlLLcoeff);
+            if (remoteLayout != null) remoteLayout.setVisibility(LinearLayout.VISIBLE);
         } else {
             LinearLayout remoteLayout = (LinearLayout) this.findViewById(R.id.remoteControlLLgraph);
             if (remoteLayout != null) remoteLayout.setVisibility(LinearLayout.GONE);
@@ -154,6 +172,8 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
             remoteLayout = (LinearLayout) this.findViewById(R.id.remoteControlLLraw);
             if (remoteLayout != null) remoteLayout.setVisibility(LinearLayout.GONE);
             remoteLayout = (LinearLayout) this.findViewById(R.id.remoteControlLLconsole);
+            if (remoteLayout != null) remoteLayout.setVisibility(LinearLayout.GONE);
+            remoteLayout = (LinearLayout) this.findViewById(R.id.remoteControlLLcoeff);
             if (remoteLayout != null) remoteLayout.setVisibility(LinearLayout.GONE);
         }
     }
@@ -179,31 +199,32 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
                 break;
             case R.id.update_coeff_action :
                 //int val = BluetoothService.getValue(BluetoothService.KPid);
-                BluetoothService.getCoeffs();
+                sendBroadcast(new Intent(BluetoothService.GETCOEFFS));
                 break;
             case R.id.bluetooth_action:
                 if(item.isChecked()){
-                    stopService(intent);
                     item.setChecked(false);
-                    Log.d(TAG,"Disconnect Bluteooth");
+                    sendBroadcast(new Intent(BluetoothService.DISCONNECT));
                 }
                 else {
-
-                    startService(intent);
+                    sendBroadcast(new Intent(BluetoothService.CONNECT));
                     item.setChecked(true);
-                    Log.d(TAG,"Connect Bluteooth");
                 }
                 return true;
             case R.id.automate_action:
                 if(item.isChecked()){
                     G.automate = false;
                     item.setChecked(false);
-                    currFragment.stopTicker();
+                    //currFragment.stopTicker();
+                    //ticker.end();
+                    sendBroadcast(new Intent(MockerService.STOP));
                 }
                 else {
                     G.automate = true;
                     item.setChecked(true);
-                    currFragment.startTicker();
+                    //currFragment.startTicker();
+                    //ticker.start();
+                    sendBroadcast(new Intent(MockerService.START));
                 }
                 return true;
             default:
@@ -277,6 +298,41 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
     }
 
 
+    class Ticker extends Thread {
 
+        private int period = 100;
+        private boolean running = true;
+
+        public Ticker() {
+            Log.d(TAG, "Ticker Create");
+        }
+
+        @Override
+        public void run() {
+            Log.d(TAG, "Ticker Start");
+            while (running) {
+                try {
+                    //if (Global.automate) {
+                    if (G.automate) {
+                        D.setAllRandom();
+                        update();
+                        //sleep(Global.updatePeriod);
+                        sleep(G.interval);
+                    } else {
+                        sleep(500);
+                    }
+                } catch (Exception e) {
+                    Log.e(TAG, "Ticker error");
+                    e.printStackTrace();
+                }
+            }
+
+        }
+
+        public void end() {
+            running = false;
+        }
+
+    }
 
 }

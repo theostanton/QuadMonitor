@@ -9,7 +9,7 @@
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
 
 
-    <application android:label="@string/app_name" android:icon="@drawable/ic_launcher">
+    <application android:label="@string/app_name" android:icon="@drawable/quad_monitor__icon">
 
         <activity android:name="com.theostanton.QuadMonitor.MainActivity"
                   android:label="@string/app_name"
@@ -28,7 +28,10 @@
         <activity android:name="com.theostanton.QuadMonitor.SettingsActivity"/>
 
         <service android:name="com.theostanton.QuadMonitor.BluetoothService"
-                 android:label="@string/service_name"/>
+                 android:label="Bluetooth Service"/>
+
+        <service android:name="com.theostanton.QuadMonitor.MockerService"
+                 android:label="Mocker Service"/>
 
     </application>
 

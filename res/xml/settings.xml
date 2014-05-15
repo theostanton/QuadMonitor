@@ -2,19 +2,18 @@
 
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <PreferenceCategory android:title="@string/connection_category">
-        <EditTextPreference
-                android:title="@string/pref_user_name"
-                android:summary="@string/pref_user_name_summary"
-                android:key="prefUsername"/>
         <CheckBoxPreference
                 android:title="@string/autoconnect_checkbox"
                 android:summary="@string/autoconnect_summary_checkbox"
                 android:key="autoconnectCheckbox"/>
-        <EditTextPreference
-                android:title="@string/samplerate_pref"
-                android:summary="@string/samplerate_summar_pref"
-                android:inputType="number"
-                android:key="sampleratePref"/>
+        <CheckBoxPreference
+                android:title="@string/ping_checkbox"
+                android:summary="@string/ping_summary_checkbox"
+                android:key="ping_checkbox"/>
+        <CheckBoxPreference
+                android:title="@string/rx_ping_checkbox"
+                android:summary="@string/rx_ping_summary_checkbox"
+                android:key="rx_ping_checkbox"/>
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/quadcopter_category">
 
@@ -60,5 +59,20 @@
                 android:inputType="number"
                 android:key="max_integral"/>
 
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/timing_category">
+        <EditTextPreference
+                android:title="@string/controlrate_pref"
+                android:summary=" "
+                android:defaultValue="45"
+                android:inputType="number"
+                android:key="controlratePref"/>
+        <EditTextPreference
+                android:title="@string/samplerate_pref"
+                android:summary=" "
+                android:defaultValue="0"
+                android:inputType="number"
+                android:key="sampleratePref"/>
     </PreferenceCategory>
 </PreferenceScreen>

@@ -13,11 +13,8 @@ import com.theostanton.QuadMonitor.D;
 public class Graph extends Component {
 
     private static final String TAG = "Graph";
-
-    private D d;
-
     private static Paint lineP;
-
+    private D d;
     // private static final int ROLL = 0;
     // private static final int PITCH = 1;
     // private static final int YAW = 2;
@@ -25,6 +22,7 @@ public class Graph extends Component {
     private int axisID = -1;
     private float yScale = 0.0f;
 
+    private int acc = 0;
     // private float scale;
     private RectF graphBounds;
     private Rect bitMapBounds;

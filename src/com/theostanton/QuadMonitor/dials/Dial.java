@@ -79,11 +79,11 @@ public class Dial extends Component{
     private void drawLine(double ang, int color, Canvas c){
         p.setColor(color);
         c.drawLine(ctrX, ctrY,
+                ctrX - radius * (float) Math.cos(ang),
+                ctrY - radius * (float) Math.sin(ang), p);
+        c.drawLine(ctrX,ctrY,
                 ctrX + radius * (float) Math.cos(ang),
                 ctrY + radius * (float) Math.sin(ang), p);
-        c.drawLine(ctrX,ctrY,
-                ctrX-radius*(float)Math.cos(ang),
-                ctrY-radius*(float)Math.sin(ang),p);
     }
 
 //    public void addId(int i){

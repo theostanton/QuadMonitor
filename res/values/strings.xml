@@ -25,6 +25,12 @@
     <string name="i_coeff">Default I Coefficient</string>
     <string name="d_coeff">Default D Coefficient</string>
     <string name="max_integral">Error Integral Limit</string>
+    <string name="ping_checkbox">Ping</string>
+    <string name="ping_summary_checkbox">Confirm variable changes to console</string>
+    <string name="rx_ping_checkbox">RX Ping</string>
+    <string name="rx_ping_summary_checkbox">Confirm RX changes to console</string>
+    <string name="timing_category">Timing</string>
+    <string name="controlrate_pref">Control</string>
     <string-array
             name="modes">
         <item>Attitude</item>
