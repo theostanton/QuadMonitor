@@ -38,23 +38,25 @@ public class DialFragment extends BaseFragment implements View.OnTouchListener{
         VIEW = "DIAL";
 
         rollErrDial = (Dial) layoutView.findViewById(R.id.dial1);
-        rollErrDial.set(new int[]{D.ERRROLL,D.MESROLL});
-        rollErrDial.setTitle("Roll Commands");
+        rollErrDial.set(new int[]{
+                D.ERRROLL,
+                D.MESROLL,
+                D.DESROLL});
         rollErrDial.setOnTouchListener(this);
 
         rollMesDial = (Dial) layoutView.findViewById(R.id.dial2);
         rollMesDial.set(new int[]{D.GYROROLL,D.ACCROLL});
-        rollMesDial.setTitle("Roll Sensors");
         rollMesDial.setOnTouchListener(this);
 
         pitchErrDial = (Dial) layoutView.findViewById(R.id.dial3);
-        pitchErrDial.set(new int[]{D.ERRPITCH,D.MESPITCH});
-        pitchErrDial.setTitle("Pitch Commands");
+        pitchErrDial.set(new int[]{
+                D.ERRPITCH,
+                D.MESPITCH,
+                D.DESPITCH});
         pitchErrDial.setOnTouchListener(this);
 
         pitchMesDial = (Dial) layoutView.findViewById(R.id.dial4);
         pitchMesDial.set(new int[]{D.GYROPITCH,D.ACCPITCH});
-        pitchMesDial.setTitle("Pitch Sensors");
         pitchMesDial.setOnTouchListener(this);
 
         views = new ArrayList<View>(4);

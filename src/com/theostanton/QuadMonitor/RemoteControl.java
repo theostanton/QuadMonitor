@@ -17,12 +17,12 @@ public class RemoteControl extends View implements View.OnTouchListener {
     protected static final String DNS = "http://theostanton.com";
     protected static final String TAG = "RemoteControl";
 
-    protected static Paint fillPaint;
-    protected static Paint linePaint;
-    protected static Paint joyPaint;
-    protected static int diameter;
-    protected static float joyDiameter;
-    protected static float joyRadius;
+    protected Paint fillPaint;
+    protected Paint linePaint;
+    protected Paint joyPaint;
+    protected int diameter;
+    protected float joyDiameter;
+    protected float joyRadius;
     protected RectF centerRect;
     protected RectF sqBounds;
     protected RectF joyStick;
@@ -82,12 +82,15 @@ public class RemoteControl extends View implements View.OnTouchListener {
     }
 
     protected void updateVals(int xx, int yy) {
+
+        // Constrain xx
         if (xx > sqBounds.right) xx = (int) sqBounds.right - (int) joyRadius;
         else if (xx < sqBounds.left) xx = (int) sqBounds.left + (int) joyRadius;
 
-
+        // constrain yy
         if (yy > sqBounds.bottom) yy = (int) sqBounds.bottom - (int) joyRadius;
         else if (yy < sqBounds.top) yy = (int) sqBounds.top + (int) joyRadius;
+
 
         point.x = xx;
         point.y = yy;
@@ -162,10 +165,10 @@ public class RemoteControl extends View implements View.OnTouchListener {
 
     @Override
     protected void onDraw(Canvas c) {
-        c.drawOval(sqBounds, fillPaint);
-        c.drawOval(joyStick, joyPaint);
-        c.drawOval(centerRect, joyPaint);
-        c.drawLine(sqBounds.centerX(), sqBounds.centerY(), point.x, point.y, linePaint);
+        c.drawOval(sqBounds, fillPaint); // main outline
+        c.drawOval(joyStick, joyPaint); // tip circle
+        c.drawOval(centerRect, joyPaint); // center circle
+        c.drawLine(sqBounds.centerX(), sqBounds.centerY(), point.x, point.y, linePaint); // stick line
     }
 
     private void releaseTouch(int xx, int yy) {
@@ -191,45 +194,6 @@ public class RemoteControl extends View implements View.OnTouchListener {
 
         invalidate();
         return true;
-
-//        int pointerId = ev.getPointerId(0);
-//        int pointerIndex = MotionEventCompat.getActionIndex(ev);
-//        Log.d(TAG,"index : " + pointerIndex);
-//        switch(ev.getAction()){
-//            case MotionEvent.ACTION_DOWN :
-//                Log.d(TAG,"ACTION_DOWN");
-//                if(currentPointerId == -1) {
-//                    currentPointerId = pointerId;
-//                    updateVals((int) ev.getX(pointerIndex), (int) ev.getY(pointerIndex));
-//                }
-//                else return false;
-//                break;
-//            case MotionEvent.ACTION_POINTER_DOWN :
-//                Log.d(TAG,"ACTION_POINTER_DOWN");
-//                if(currentPointerId == -1) {
-//                    currentPointerId = pointerId;
-//                    updateVals((int) ev.getX(pointerIndex), (int) ev.getY(pointerIndex));
-//                }
-//                else return false;
-//                break;
-//            case MotionEvent.ACTION_MOVE :
-//                Log.d(TAG,"ACTION_MOVE");
-//                updateVals((int) ev.getX(pointerIndex), (int) ev.getY(pointerIndex));
-//                break;
-//            case MotionEvent.ACTION_UP :
-//                Log.d(TAG,"ACTION_UP");
-//                if(currentPointerId == pointerId) currentPointerId = -1;
-//                else return false;
-//                break;
-//            case MotionEvent.ACTION_POINTER_UP :
-//                Log.d(TAG,"ACTION_POINTER_UP");
-//                if(currentPointerId == pointerId) currentPointerId = -1;
-//                else return false;
-//                break;
-//
-//
-//        }
-
     }
 
 

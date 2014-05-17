@@ -44,6 +44,7 @@ public class GraphFragment extends BaseFragment {
 
         graphYaw = (Graph) layoutView.findViewById(R.id.graph3);
         graphYaw.set(D.YAW);
+        graphYaw.setRange(360.0f);
         graphYaw.setOnTouchListener(this);
 
         views = new ArrayList<View>(3);

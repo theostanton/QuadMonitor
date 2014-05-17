@@ -20,6 +20,7 @@ public class Component extends View implements View.OnTouchListener{
     protected final String TAG = "Component";
     public int id;
     public int acc = 0;
+    protected int[] IDs = new int[1];
     protected Paint textP = new Paint(Paint.ANTI_ALIAS_FLAG);
     protected Paint frameP = new Paint(Paint.ANTI_ALIAS_FLAG);
     protected Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -75,7 +76,7 @@ public class Component extends View implements View.OnTouchListener{
 
     }
 
-    public int getId(){
+    public int getIds() {
         return id;
     }
 
@@ -83,9 +84,11 @@ public class Component extends View implements View.OnTouchListener{
     public void set(int i){
         Log.e("Component", "set(int i) should set in subclass");
         id = i;
+        IDs[0] = i;
     }
 
     public void set(int[] i){
+        IDs = i;
         if(i.length == 1) set(i[0]);
         else Log.e("Component", "set(int[] i) should set in subclass");
     }
@@ -142,6 +145,11 @@ public class Component extends View implements View.OnTouchListener{
         lastMs = System.currentTimeMillis();
         // c.drawText(D.getStringVal(id),ctrX,ctrY + textY,textP);
 
+    }
+
+    public int[] getIDs() {
+        Log.d(TAG, "getIDs() " + IDs[0]);
+        return IDs;
     }
 
 

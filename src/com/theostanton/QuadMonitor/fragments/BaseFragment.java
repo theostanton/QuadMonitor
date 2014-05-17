@@ -25,7 +25,7 @@ public class BaseFragment extends Fragment implements View.OnTouchListener {
     protected D d;
     protected View layoutView;
     protected ArrayList<View> views;
-    protected Ticker ticker;
+    // protected Ticker ticker;
     protected float dx = 0.0f;
     protected float dy = 0.0f;
     protected float lastx = 0.0f;
@@ -46,18 +46,12 @@ public class BaseFragment extends Fragment implements View.OnTouchListener {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         Log.e(TAG, "super.onCreateView shouldn't be called");
-
-
         return new View(null);
     }
 
     public void init() {
         d = D.getInstance();
         mScaleDetector = new ScaleGestureDetector(getActivity(), new ScaleListener());
-        // if (G.automate) {
-        //     if(ticker == null)ticker = new Ticker();
-        //     if(!ticker.isAlive())ticker.start();
-        // }
     }
 
     @Override
@@ -144,7 +138,7 @@ public class BaseFragment extends Fragment implements View.OnTouchListener {
                 if (max(dx, dy) < 1.0f) {
                     Intent intent = new Intent(getActivity(), FocusActivity.class);
 
-                    intent.putExtra("ID", new int[]{view.getId()});
+                    intent.putExtra("ID", ((Component) view).getIDs());
                     intent.putExtra("VIEW", VIEW);
                     startActivity(intent);
                 }
@@ -155,55 +149,55 @@ public class BaseFragment extends Fragment implements View.OnTouchListener {
         return true;
     }
 
-    public void startTicker() {
-        if (ticker == null) {
-            ticker = new Ticker();
-        }
-        if (!ticker.isAlive()) ticker.start();
-    }
-
-    public void stopTicker() {
-        if (ticker == null) ticker = new Ticker();
-        ticker.end();
-    }
-
-
-    class Ticker extends Thread {
-
-        private int period = 100;
-        private boolean running = true;
-
-        public Ticker() {
-            Log.d(TAG, "Ticker Create");
-        }
-
-        @Override
-        public void run() {
-            Log.d(TAG, "Ticker Start");
-            while (running) {
-                try {
-                    //if (Global.automate) {
-                    if (G.automate) {
-                        D.setAllRandom();
-                        update();
-                        //sleep(Global.updatePeriod);
-                        sleep(G.interval);
-                    } else {
-                        sleep(500);
-                    }
-                } catch (Exception e) {
-                    Log.e(TAG, "Ticker error");
-                    e.printStackTrace();
-                }
-            }
-
-        }
-
-        public void end() {
-            running = false;
-        }
-
-    }
+//    public void startTicker() {
+//        if (ticker == null) {
+//            ticker = new Ticker();
+//        }
+//        if (!ticker.isAlive()) ticker.start();
+//    }
+//
+//    public void stopTicker() {
+//        if (ticker == null) ticker = new Ticker();
+//        ticker.end();
+//    }
+//
+//
+//    class Ticker extends Thread {
+//
+//        private int period = 100;
+//        private boolean running = true;
+//
+//        public Ticker() {
+//            Log.d(TAG, "Ticker Create");
+//        }
+//
+//        @Override
+//        public void run() {
+//            Log.d(TAG, "Ticker Start");
+//            while (running) {
+//                try {
+//                    //if (Global.automate) {
+//                    if (G.automate) {
+//                        D.setAllRandom();
+//                        update();
+//                        //sleep(Global.updatePeriod);
+//                        sleep(G.interval);
+//                    } else {
+//                        sleep(500);
+//                    }
+//                } catch (Exception e) {
+//                    Log.e(TAG, "Ticker error");
+//                    e.printStackTrace();
+//                }
+//            }
+//
+//        }
+//
+//        public void end() {
+//            running = false;
+//        }
+//
+//    }
 
     private class ScaleListener
             extends ScaleGestureDetector.SimpleOnScaleGestureListener {

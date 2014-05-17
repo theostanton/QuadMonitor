@@ -56,9 +56,8 @@ private Paint pBar = new Paint(Paint.ANTI_ALIAS_FLAG);
         if(!focused) c.drawRect(sqBounds, frameP);
         c.drawLine(sqBounds.left,ctrY,sqBounds.right,ctrY,frameP);
 
-        c.drawText(title, ctrX, getBottom() - textP.getTextSize() * 2.0f, textP);
-        //if(focused) c.drawText(title, ctrX, getBottom() - textP.getTextSize()*2.0f, textP);
-        //else        c.drawText(title, ctrX, textY, textP);
+        c.drawText(title, ctrX, sqBounds.bottom - textP.getTextSize() * 2.0f, textP);
+
         float tot = 0.0f;
         for(int i = 0; i<3; i++) {
             float val = Math.min( D.getVal(dID + i) * yScale, maxY);

@@ -2,12 +2,12 @@ package com.theostanton.QuadMonitor.dials;
 
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.util.Log;
 import com.theostanton.QuadMonitor.Component;
 import com.theostanton.QuadMonitor.D;
+import com.theostanton.QuadMonitor.G;
 
 /**
  * Created by theo on 23/04/2014.
@@ -16,15 +16,8 @@ public class Dial extends Component{
 
     protected final String TAG = "Dial";
 
-//    private static final int ROLLMES = 0;
-//    private static final int ROLLERR = 1;
-//    private static final int PITCHMES = 2;
-//    private static final int PITCHERR = 3;
-//    private static final int YAWMES = 4;
-//    private static final int YAWERR = 5;
-
     private D d;
-    private int[] id;
+    //protected int[] IDs;
     private int[] lineColor;
     private int ids = -1;
 
@@ -36,9 +29,9 @@ public class Dial extends Component{
         d = D.getInstance();
         title = "Dial";
         lineColor = new int[3];
-        lineColor[0] = Color.RED;
-        lineColor[1] = Color.BLUE;
-        lineColor[2] = Color.GREEN;
+        lineColor[0] = G.ERRCOLOUR;
+        lineColor[1] = G.MESCOLOUR;
+        lineColor[2] = G.DESCOLOUR;
     }
 
     public Dial(Context context, AttributeSet attrs, boolean f) {
@@ -46,38 +39,55 @@ public class Dial extends Component{
         focused = true;
         title = "Dial";
         lineColor = new int[3];
-        lineColor[0] = Color.RED;
-        lineColor[1] = Color.BLUE;
-        lineColor[2] = Color.GREEN;
+        lineColor[0] = G.ERRCOLOUR;
+        lineColor[1] = G.MESCOLOUR;
+        lineColor[2] = G.DESCOLOUR;
     }
 
     @Override
     protected void onDraw(Canvas c) {
         super.onDraw(c);
-        c.drawOval(sqBounds, frameP);
-        c.drawLine(sqBounds.left,ctrY,sqBounds.right,ctrY,frameP);
 
-        if(id != null) {
-            for (int i = 0; i < id.length; i++) {
-                //Log.d(TAG, "id[" + i + "] = " + id[i]);
-                drawLine(Math.toRadians(D.getVal(id[i])), lineColor[i], c);
+        if (IDs != null) {
+            for (int i = 0; i < IDs.length; i++) {
+                drawLine(Math.toRadians(D.getVal(IDs[i])), lineColor[i], c);
             }
         }
 
         c.drawText(title, ctrX, ctrY - textP.getTextSize(), textP);
-        //c.drawText(title, ctrX, top + textY, textP);
+
+        c.drawOval(sqBounds, frameP);
+        c.drawLine(sqBounds.left, ctrY, sqBounds.right, ctrY, frameP);
+
+        for (int a = 0; a < 360; a += 20) drawNib(Math.toRadians(a), c);
     }
 
     public void set(int[] i){
         Log.d(TAG, i.length + " ids being set");
         for(int ii: i){
-            Log.d(TAG, "id : " + ii + " set" );
+            Log.d(TAG, "IDs : " + ii + " set");
         }
-        id = i;
+        IDs = i;
+
+        switch (IDs[0]) {
+            case D.ERRROLL:
+                title = "Roll Commands";
+                break;
+            case D.GYROROLL:
+                title = "Roll Sensors";
+                break;
+            case D.ERRPITCH:
+                title = "Pitch Commands";
+                break;
+            case D.GYROPITCH:
+                title = "Pitch Sensors";
+                break;
+        }
     }
 
     private void drawLine(double ang, int color, Canvas c){
         p.setColor(color);
+        p.setStrokeWidth(2.0f);
         c.drawLine(ctrX, ctrY,
                 ctrX - radius * (float) Math.cos(ang),
                 ctrY - radius * (float) Math.sin(ang), p);
@@ -86,9 +96,18 @@ public class Dial extends Component{
                 ctrY + radius * (float) Math.sin(ang), p);
     }
 
+    private void drawNib(double ang, Canvas c) {
+        c.drawLine(
+                ctrX - radius * (float) Math.cos(ang),
+                ctrY - radius * (float) Math.sin(ang),
+                ctrX - radius * 0.98f * (float) Math.cos(ang),
+                ctrY - radius * 0.98f * (float) Math.sin(ang),
+                frameP);
+    }
+
 //    public void addId(int i){
 //        if(i == -1) Log.e(title,"ID == -1");
-//        id[++ids] = i;
+//        IDs[++ids] = i;
 //        title = D.getName(i);
 //        invalidate();
 //    }

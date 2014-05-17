@@ -114,6 +114,10 @@ public class D{ // Singleton. make thread safer
             values.put(i, new Value());
         }
 
+        values.get(DESYAW).setRange(360.0f);
+        values.get(MESYAW).setRange(360.0f);
+        values.get(ERRYAW).setRange(360.0f);
+
         orientationOffset = new float[]{0.0f, 0.0f, 0.0f};
 
         values.get(pA).enableMovingAverager();
@@ -150,9 +154,9 @@ public class D{ // Singleton. make thread safer
         bitMaps[YAW] = Bitmap.createBitmap(1, 1, Bitmap.Config.RGB_565);
 
         graphColours = new int[4];
-        graphColours[0] = Color.BLUE;
-        graphColours[1] = Color.GREEN;
-        graphColours[2] = Color.RED;
+        graphColours[0] = G.DESCOLOUR;
+        graphColours[1] = G.MESCOLOUR;
+        graphColours[2] = G.ERRCOLOUR;
         graphColours[3] = Color.LTGRAY;
 
         setNames();
@@ -186,18 +190,18 @@ public class D{ // Singleton. make thread safer
 //        bitMaps[PITCH] = createBitMap(new int[]{DESPITCH, MESPITCH, ERRPITCH});
 //        bitMaps[YAW] = createBitMap(new int[]{DESYAW, MESYAW, ERRYAW});
 
-        if (sampleRateOffset < sampleRate) sampleRateOffset++;
+        if (sampleRateOffset < sampleRate - 1) sampleRateOffset++;
         else sampleRateOffset = 0;
 
     }
 
     public static void updateBitmaps(){
-        createBitMap(ROLL, new int[]{DESROLL, MESROLL, ERRROLL, ERRROLLINTEGRAL});
-        createBitMap(PITCH, new int[]{DESPITCH, MESPITCH, ERRPITCH, ERRPITCHINTEGRAL});
-        createBitMap(YAW, new int[]{DESYAW, MESYAW, ERRYAW});
+        createBitMap(ROLL, new int[]{DESROLL, MESROLL, ERRROLL, ERRROLLINTEGRAL}, true);
+        createBitMap(PITCH, new int[]{DESPITCH, MESPITCH, ERRPITCH, ERRPITCHINTEGRAL}, true);
+        createBitMap(YAW, new int[]{DESYAW, MESYAW, ERRYAW}, true);
     }
 
-    private static synchronized void createBitMap(int axisID, int[] IDs) {
+    private static synchronized void createBitMap(int axisID, int[] IDs, boolean fill) {
 
         //Canvas c = canvases[axisID];
         float w, h;
@@ -212,7 +216,9 @@ public class D{ // Singleton. make thread safer
         if (w == 0) w = 1.0f;
         if (h == 0) h = 1.0f;
         float ctrY = h / 2.0f;
-        float yScale = ctrY / 60.0f;
+        float yScale;
+        if (axisID == YAW) yScale = ctrY / 180.0f;
+        else yScale = ctrY / 60.0f;
 
 //        if(bmp != null){
 //            //bmp.recycle();
@@ -233,7 +239,6 @@ public class D{ // Singleton. make thread safer
         ListIterator<Float> it;
         int cIndex = 0;
 
-        //canvases[axisID].drawColor(Color.BLACK);
         Path[] paths = new Path[4];
 
         int j = 0;
@@ -242,22 +247,30 @@ public class D{ // Singleton. make thread safer
             float prev;
             float prev2;
             list = lists.get(id);
-            if (values > size) {
+            paths[j] = new Path();
+            if (values > size) { // graph not full
                 x = xScale * (values - size);
                 it = list.listIterator();
                 prev = ctrY;
                 prev2 = ctrY;
-            } else {
+                paths[j].moveTo(x, ctrY);
+                paths[j].quadTo(x, ctrY, x, prev);
+            } else { // graph  full
                 int index = size - values;
                 it = list.listIterator(index);
-                prev = list.peekFirst();
+                prev = list.get(index);
                 prev *= yScale;
                 prev += ctrY;
                 prev2 = prev;
+                paths[j].moveTo(-2, ctrY);
+                // paths[j].quadTo(-2, prev);
+                paths[j].lineTo(0, prev);
+
             }
-            paths[j] = new Path();
-            paths[j].moveTo(x, prev);
-            x += xScale;
+
+
+            //paths[j].moveTo(x, prev);
+            //x += xScale;
             try {
                 while (it.hasNext()) {
                     y = it.next();
@@ -270,20 +283,35 @@ public class D{ // Singleton. make thread safer
                     //prev2 = prev;
                     prev = y;
                 }
-                paths[j].lineTo(w, y);
+                paths[j].lineTo(w + 2, y);
+                paths[j].lineTo(w + 2, ctrY);
+                paths[j].lineTo(-2, ctrY);
+                paths[j].close();
             } catch (Exception e) {
                 Log.e(TAG, "plot error");
                 e.printStackTrace();
             }
             j++;
         }
-
-        p.setStrokeWidth(2.0f);
+        paths[0].setFillType(Path.FillType.WINDING);
+        p.setStyle(Paint.Style.FILL);
         canvases[axisID].drawColor(Color.BLACK);
+
+        for (int i = 0; i < IDs.length; i++) {
+            p.setColor(graphColours[i]);
+            p.setStyle(Paint.Style.FILL);
+            p.setAlpha(50);
+            canvases[axisID].drawPath(paths[i], p);
+        }
+
+        p.setAlpha(255);
+        p.setStyle(Paint.Style.STROKE);
+        p.setStrokeWidth(2.0f);
         for (int i = 0; i < IDs.length; i++) {
             p.setColor(graphColours[i]);
             canvases[axisID].drawPath(paths[i], p);
         }
+
 
         p.setColor(Color.WHITE);
         float xAcc = xScale * sampleRate;
@@ -294,70 +322,6 @@ public class D{ // Singleton. make thread safer
 
         //return Bitmap.createBitmap(bmp);
         //return bmp;
-
-    }
-
-    private static Bitmap createBitMapDRAWLINES(int[] IDs) {
-
-
-        float w,h;
-
-        if(focusGraph) {
-            w = focusGraphW;
-            h = focusGraphH;
-        }
-        else {
-            w = graphW;
-            h = graphH;
-        }
-        float ctrY = h / 2.0f;
-        float yScale = ctrY / 60.0f;
-
-//        if(bmp != null){
-//            bmp.recycle();
-//            bmp = null;
-//        }
-        bmp = Bitmap.createBitmap((int) w, (int) h, Bitmap.Config.RGB_565);
-        Canvas c = new Canvas(bmp);
-        p.setColor(Color.RED);
-        // xScale : x gap between points
-        // values : points on bitmap
-        // index : start value in list
-        LinkedList<Float> list = lists.get(IDs[0]);
-        int size = list.size();
-        int values = (int) ( w / xScale );
-        float y = 0.0f;
-
-        ListIterator<Float> it;
-        int cIndex = 0;
-        for(int id : IDs) {
-            p.setColor(graphColours[cIndex++]);
-            float x = 0.0f;
-            float prev;
-            list = lists.get(id);
-            if (values > size) {
-                x = xScale * (values - size);
-                it = list.listIterator();
-                prev  = ctrY;
-            } else {
-                int index = size - values;
-                it = list.listIterator(index);
-                prev  = list.peekFirst();
-                prev *= yScale;
-                prev += ctrY;
-            }
-            while (it.hasNext()) {
-                y = it.next();
-                y *= yScale;
-                y += ctrY;
-                c.drawLine(x, prev, x + xScale, y, p);
-                x += xScale;
-                prev = y;
-            }
-            c.drawLine(x, y, w, y, p);
-        }
-
-        return bmp;
 
     }
 
@@ -411,60 +375,13 @@ public class D{ // Singleton. make thread safer
         return iVal;
     }
 
-//    public static void updateLists() {
-//        addToList(DESROLL, val(DESROLL));
-//        addToList(MESROLL, val(MESROLL));
-//        addToList(ERRROLL, val(DESROLL) - val(MESROLL));
-//        addToList(DESPITCH, 2*val(DESPITCH));
-//        addToList(MESPITCH, 2*val(MESPITCH));
-//        addToList(ERRPITCH, 2* ( val(DESPITCH) - val(MESPITCH) ));
-//        addToList(DESYAW, val(DESYAW));
-//        addToList(MESYAW, val(MESYAW));
-//        addToList(ERRYAW, val(ERRYAW) - val(MESYAW));
-//
-//        updateErrors();
-//    }
-//
-//    public static void updateListsSoftly() {
-//        addSoftlyToList(DESROLL, val(21));
-//        addSoftlyToList(MESROLL, val(22));
-//        addSoftlyToList(ERRROLL, val(12) - val(22));
-//        addSoftlyToList(DESPITCH, 2 * val(26));
-//        addSoftlyToList(MESPITCH, 2 * val(27));
-//        addSoftlyToList(ERRPITCH, 2 * (val(26) - val(27)));
-//        addSoftlyToList(DESYAW, val(31));
-//        addSoftlyToList(MESYAW, val(32));
-//        addSoftlyToList(ERRYAW, val(31) - val(32));
-//        updateErrors();
-//    }
-
     public static int getdVal() {
         return dVal;
     }
 
-//    public static void setpVal(int pVal) {
-//        this.pVal = pVal;
-//    }
-
     public static float val(int i) {
         if (values == null) return 0.0f;
         return values.get(i).getVal();
-    }
-
-//    public static void setiVal(int iVal) {
-//        D.iVal = iVal;
-//    }
-
-    public static float max(int i) {
-        return values.get(i).max;
-    }
-
-//    public static void setdVal(int dVal) {
-//        D.dVal = dVal;
-//    }
-
-    public static float min(int i) {
-        return values.get(i).min;
     }
 
     public static void setAllRandom() {
@@ -475,62 +392,6 @@ public class D{ // Singleton. make thread safer
         updated();
     }
 
-    public static String getName(int i) {
-        return values.get(i).getName();
-    }
-
-
-//    public static void addSoftlyToList(int list, float val) {
-//
-//        //TODO: This isn't random the way it should be.
-//        //TODO: Implement perlin noise
-//        //Log.d(TAG,String.valueOf(val));
-//        //System.out.println(val);
-//        int dampening = 10;
-//        float v = (int) val;
-//        //v = Math.max(0, v);
-//        //v = Math.min(90, v);
-//        v *= 4;
-//
-//        ArrayList<Float> l = graphLists.get(list);
-//
-//        for (int i = 1; i < dampening; i++) {
-//            v += l.get(graphWidth - i) + 45.0f;
-//        }
-//
-//        v /= dampening + 3;
-//        v -= 45.0f;
-//        //Log.d(TAG,String.valueOf(v));
-//        //v *= 3;
-//        //v /= 2;
-//        //v *= 2;
-//        //System.out.println(v);
-//
-//        l.remove(0);
-//        l.add(v);
-//    }
-
-//    public static ArrayList<Float> getList(int id) {
-//        if(graphLists != null) {
-//            if(id == -1){
-//                Log.d("getList(id)","id == -1");
-//                return new ArrayList<Float>(graphLists.get(0));
-//            }
-//            return new ArrayList<Float>(graphLists.get(id));
-//        }
-//        else return null;
-//    }
-
-//    public static void addToList(int list, float val) {
-//        // ArrayList<Float> l = graphLists.get(list);
-//        // int v = (int) val + l.get(l.size() - 1);
-//        // v /= 2;
-//        ArrayList<Float> l = graphLists.get(list);
-//        if(l.size() > 0) {
-//            l.remove(0);
-//            l.add(val);
-//        }
-//    }
 
     public static float getVal(int i) {
         return val(i);
@@ -616,18 +477,6 @@ public class D{ // Singleton. make thread safer
         Log.d("Scale Factor", String.valueOf(xScale));
     }
 
-    public static float getXScale() {
-        return xScale;
-    }
-
-    public static float getSampleRate() {
-        return sampleRate;
-    }
-
-    public static int getSampleRateOffset() {
-        return (int) ((float) sampleRateOffset * xScale);
-    }
-
     public static boolean updating() {
         return updating;
     }
@@ -691,15 +540,15 @@ public class D{ // Singleton. make thread safer
         switch (axisID) {
             case ROLL:
                 values.get(ERRROLL).setVal(
-                        -val(MESROLL) - val(DESROLL));
+                        -val(MESROLL) + val(DESROLL));
                 break;
             case PITCH:
                 values.get(ERRPITCH).setVal(
-                        -val(MESPITCH) - val(DESPITCH));
+                        -val(MESPITCH) + val(DESPITCH));
                 break;
             case YAW:
                 values.get(ERRYAW).setVal(
-                        -val(MESYAW) - val(DESYAW));
+                        -val(MESYAW) + val(DESYAW));
                 break;
         }
     }
@@ -767,7 +616,7 @@ public class D{ // Singleton. make thread safer
     public void setOrientation(float[] orientation) {
         values.get(MESROLL).setVal(orientation[2]); //- orientationOffset[2]);
         values.get(MESPITCH).setVal(orientation[1]); // - orientationOffset[1]);
-        values.get(MESYAW).setVal(orientation[0]); // orientationOffset[0]);
+        values.get(MESYAW).setVal(orientation[0] - 180.0f); // orientationOffset[0]);
         updateErrors();
         updateLists();
     }

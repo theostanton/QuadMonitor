@@ -29,6 +29,8 @@ public class Graph extends Component {
     private Path path;
     private int x =0;
 
+    private float range = 90.0f;
+
 
     // private Rect shift;
     // private Canvas cc;
@@ -67,13 +69,16 @@ public class Graph extends Component {
         //ctrY+=topPad/2.0f;
         ctrY = graphBounds.centerY();
         //bitMapBounds = new Rect(0,0,D.getList(dID).size() - 1,360);
-        yScale = ctrY / 90.0f;
+        yScale = ctrY / range;
         Log.d(TAG,"yScale = " + yScale);
         d.setGraphBounds(getWidth()-2,(int)graphBounds.height());
         textP.setTextSize(100.0f);
         textY = graphBounds.top + textP.getTextSize()/2.0f + graphBounds.height() / 10.0f;
     }
 
+    public void setRange(float range) {
+        this.range = range;
+    }
 
 
 
@@ -83,9 +88,6 @@ public class Graph extends Component {
         c.drawBitmap(d.getBmp(dID),1,graphBounds.top,p);
         if(!focused) c.drawRect(graphBounds, frameP);
         c.drawLine(left, ctrY, right, ctrY, frameP);
-//        for(float x = graphBounds.width() - D.getSampleRateOffset(); x > 0.0f; x -= D.getXScale() * D.getSampleRate()){
-//            c.drawLine(x,ctrY - 4.0f,x,ctrY + 4.0f,frameP);
-//        }
         c.drawText(title, ctrX, textY, textP);
     }
 

@@ -13,20 +13,15 @@ public class Value {
     public float min = -55.0f;
     private String name = "Label";
     private boolean movingAverage = false;
+    private float range;
 
-    public void setMax(Float m) {
-        max = m;
-    }
-
-    public void setMin(Float m) {
-        min = m;
-    }
-
-    public void setVal(float v) {
-        if (v > max) val = max;
-        else if (v < min) val = min;
-        else val = v;
-    }
+//    public void setMax(Float m) {
+//        max = m;
+//    }
+//
+//    public void setMin(Float m) {
+//        min = m;
+//    }
 
     public String getName() {
         return name;
@@ -40,22 +35,28 @@ public class Value {
         return val;
     }
 
-    public void setVal(byte byt) {
-        float v = (float) byt;
-        if (movingAverage) {
-            v += val;
-            v /= 2.0f;
-        }
+    public void setVal(float v) {
         if (v > max) val = max;
         else if (v < min) val = min;
         else val = v;
     }
 
+//    public void setVal(byte byt) {
+//        float v = (float) byt;
+//        if (movingAverage) {
+//            v += val;
+//            v /= 2.0f;
+//        }
+//        if (v > max) val = max;
+//        else if (v < min) val = min;
+//        else val = v;
+//    }
+
     public void tickRandom() {
         val = (float) (r.nextGaussian()) * max + val;
         val /= 2.0f;
-        val = Math.min(val, 45.0f);
-        val = Math.max(val, -45.0f);
+        val = Math.min(val, max);
+        val = Math.max(val, min);
     }
 
     public void enableMovingAverager() {
@@ -71,4 +72,8 @@ public class Value {
         return name + ":" + String.valueOf(val);
     }
 
+    public void setRange(float range) {
+        min = -(range / 2.0f);
+        max = range / 2.0f;
+    }
 }

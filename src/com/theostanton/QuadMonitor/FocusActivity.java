@@ -24,7 +24,7 @@ public class FocusActivity extends Activity implements View.OnTouchListener{
     private static final String TAG = "Focus Activity";
     private D d;
     private Component view;
-    private Ticker ticker;
+    //private Ticker ticker;
     private ScaleGestureDetector mScaleDetector;
     private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
@@ -127,41 +127,41 @@ public class FocusActivity extends Activity implements View.OnTouchListener{
         }
     }
 
-    class Ticker extends Thread {
-
-        private int period = 100;
-
-        public Ticker() {
-            Log.d("Ticker", "Create");
-        }
-
-        @Override
-        public void run() {
-            Log.d("Ticker", "Start");
-            while (true) {
-                try {
-
-                    //if (Global.automate) {
-                    if (G.automate) {
-                        //Log.d("Ticker", "Tick");
-                        new Thread() {
-                            public void run() {
-                                D.setAllRandom();
-                                update();
-                            }
-                        }.start();
-                        //sleep(Global.updatePeriod);
-                        sleep( G.interval );
-                    } else {
-                        sleep(500);
-                    }
-                } catch (Exception e) {
-                    Log.e("Ticker", "Catch error");
-                    e.printStackTrace();
-                }
-            }
-
-        }
-
-    }
+//    class Ticker extends Thread {
+//
+//        private int period = 100;
+//
+//        public Ticker() {
+//            Log.d("Ticker", "Create");
+//        }
+//
+//        @Override
+//        public void run() {
+//            Log.d("Ticker", "Start");
+//            while (true) {
+//                try {
+//
+//                    //if (Global.automate) {
+//                    if (G.automate) {
+//                        //Log.d("Ticker", "Tick");
+//                        new Thread() {
+//                            public void run() {
+//                                D.setAllRandom();
+//                                update();
+//                            }
+//                        }.start();
+//                        //sleep(Global.updatePeriod);
+//                        sleep( G.interval );
+//                    } else {
+//                        sleep(500);
+//                    }
+//                } catch (Exception e) {
+//                    Log.e("Ticker", "Catch error");
+//                    e.printStackTrace();
+//                }
+//            }
+//
+//        }
+//
+//    }
 }

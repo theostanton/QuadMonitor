@@ -149,31 +149,32 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
     }
 
     private void showControls(boolean show) {
+        G.remoteControl = show;
         if (show) {
-            LinearLayout remoteLayout = (LinearLayout) this.findViewById(R.id.remoteControlLLgraph);
+            LinearLayout remoteLayout = (LinearLayout) findViewById(R.id.remoteControlLLgraph);
             if (remoteLayout != null) remoteLayout.setVisibility(LinearLayout.VISIBLE);
-            remoteLayout = (LinearLayout) this.findViewById(R.id.remoteControlLLdial);
+            remoteLayout = (LinearLayout) findViewById(R.id.remoteControlLLdial);
             if (remoteLayout != null) remoteLayout.setVisibility(LinearLayout.VISIBLE);
-            remoteLayout = (LinearLayout) this.findViewById(R.id.remoteControlLLpid);
+            remoteLayout = (LinearLayout) findViewById(R.id.remoteControlLLpid);
             if (remoteLayout != null) remoteLayout.setVisibility(LinearLayout.VISIBLE);
-            remoteLayout = (LinearLayout) this.findViewById(R.id.remoteControlLLraw);
+            remoteLayout = (LinearLayout) findViewById(R.id.remoteControlLLraw);
             if (remoteLayout != null) remoteLayout.setVisibility(LinearLayout.VISIBLE);
-            remoteLayout = (LinearLayout) this.findViewById(R.id.remoteControlLLconsole);
+            remoteLayout = (LinearLayout) findViewById(R.id.remoteControlLLconsole);
             if (remoteLayout != null) remoteLayout.setVisibility(LinearLayout.VISIBLE);
-            remoteLayout = (LinearLayout) this.findViewById(R.id.remoteControlLLcoeff);
+            remoteLayout = (LinearLayout) findViewById(R.id.remoteControlLLcoeff);
             if (remoteLayout != null) remoteLayout.setVisibility(LinearLayout.VISIBLE);
         } else {
-            LinearLayout remoteLayout = (LinearLayout) this.findViewById(R.id.remoteControlLLgraph);
+            LinearLayout remoteLayout = (LinearLayout) findViewById(R.id.remoteControlLLgraph);
             if (remoteLayout != null) remoteLayout.setVisibility(LinearLayout.GONE);
-            remoteLayout = (LinearLayout) this.findViewById(R.id.remoteControlLLdial);
+            remoteLayout = (LinearLayout) findViewById(R.id.remoteControlLLdial);
             if (remoteLayout != null) remoteLayout.setVisibility(LinearLayout.GONE);
-            remoteLayout = (LinearLayout) this.findViewById(R.id.remoteControlLLpid);
+            remoteLayout = (LinearLayout) findViewById(R.id.remoteControlLLpid);
             if (remoteLayout != null) remoteLayout.setVisibility(LinearLayout.GONE);
-            remoteLayout = (LinearLayout) this.findViewById(R.id.remoteControlLLraw);
+            remoteLayout = (LinearLayout) findViewById(R.id.remoteControlLLraw);
             if (remoteLayout != null) remoteLayout.setVisibility(LinearLayout.GONE);
-            remoteLayout = (LinearLayout) this.findViewById(R.id.remoteControlLLconsole);
+            remoteLayout = (LinearLayout) findViewById(R.id.remoteControlLLconsole);
             if (remoteLayout != null) remoteLayout.setVisibility(LinearLayout.GONE);
-            remoteLayout = (LinearLayout) this.findViewById(R.id.remoteControlLLcoeff);
+            remoteLayout = (LinearLayout) findViewById(R.id.remoteControlLLcoeff);
             if (remoteLayout != null) remoteLayout.setVisibility(LinearLayout.GONE);
         }
     }
@@ -236,6 +237,7 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
     @Override
     public void onTabSelected(ActionBar.Tab tab, android.app.FragmentTransaction fragmentTransaction) {
         mViewPager.setCurrentItem(tab.getPosition());
+        showControls(G.remoteControl);
     }
 
     @Override
