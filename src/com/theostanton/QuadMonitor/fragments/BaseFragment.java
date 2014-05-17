@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.*;
-import android.widget.LinearLayout;
 import com.theostanton.QuadMonitor.*;
 
 import java.util.ArrayList;
@@ -68,35 +67,35 @@ public class BaseFragment extends Fragment implements View.OnTouchListener {
         getActivity().unregisterReceiver(broadcastReceiver);
     }
 
-    private void showControls(boolean show) {
-        if (show) {
-            LinearLayout remoteLayout = (LinearLayout) getActivity().findViewById(R.id.remoteControlLLgraph);
-            if (remoteLayout != null) remoteLayout.setVisibility(LinearLayout.VISIBLE);
-            remoteLayout = (LinearLayout) getActivity().findViewById(R.id.remoteControlLLdial);
-            if (remoteLayout != null) remoteLayout.setVisibility(LinearLayout.VISIBLE);
-            remoteLayout = (LinearLayout) getActivity().findViewById(R.id.remoteControlLLpid);
-            if (remoteLayout != null) remoteLayout.setVisibility(LinearLayout.VISIBLE);
-            remoteLayout = (LinearLayout) getActivity().findViewById(R.id.remoteControlLLraw);
-            if (remoteLayout != null) remoteLayout.setVisibility(LinearLayout.VISIBLE);
-            remoteLayout = (LinearLayout) getActivity().findViewById(R.id.remoteControlLLconsole);
-            if (remoteLayout != null) remoteLayout.setVisibility(LinearLayout.VISIBLE);
-            remoteLayout = (LinearLayout) getActivity().findViewById(R.id.remoteControlLLcoeff);
-            if (remoteLayout != null) remoteLayout.setVisibility(LinearLayout.VISIBLE);
-        } else {
-            LinearLayout remoteLayout = (LinearLayout) getActivity().findViewById(R.id.remoteControlLLgraph);
-            if (remoteLayout != null) remoteLayout.setVisibility(LinearLayout.GONE);
-            remoteLayout = (LinearLayout) getActivity().findViewById(R.id.remoteControlLLdial);
-            if (remoteLayout != null) remoteLayout.setVisibility(LinearLayout.GONE);
-            remoteLayout = (LinearLayout) getActivity().findViewById(R.id.remoteControlLLpid);
-            if (remoteLayout != null) remoteLayout.setVisibility(LinearLayout.GONE);
-            remoteLayout = (LinearLayout) getActivity().findViewById(R.id.remoteControlLLraw);
-            if (remoteLayout != null) remoteLayout.setVisibility(LinearLayout.GONE);
-            remoteLayout = (LinearLayout) getActivity().findViewById(R.id.remoteControlLLconsole);
-            if (remoteLayout != null) remoteLayout.setVisibility(LinearLayout.GONE);
-            remoteLayout = (LinearLayout) getActivity().findViewById(R.id.remoteControlLLcoeff);
-            if (remoteLayout != null) remoteLayout.setVisibility(LinearLayout.GONE);
-        }
-    }
+//    private void showControls(boolean show) {
+//        if (show) {
+//            LinearLayout remoteLayout = (LinearLayout) getActivity().findViewById(R.id.remoteControlLLgraph);
+//            if (remoteLayout != null) remoteLayout.setVisibility(LinearLayout.VISIBLE);
+//            remoteLayout = (LinearLayout) getActivity().findViewById(R.id.remoteControlLLdial);
+//            if (remoteLayout != null) remoteLayout.setVisibility(LinearLayout.VISIBLE);
+//            remoteLayout = (LinearLayout) getActivity().findViewById(R.id.remoteControlLLpid);
+//            if (remoteLayout != null) remoteLayout.setVisibility(LinearLayout.VISIBLE);
+//            remoteLayout = (LinearLayout) getActivity().findViewById(R.id.remoteControlLLraw);
+//            if (remoteLayout != null) remoteLayout.setVisibility(LinearLayout.VISIBLE);
+//            remoteLayout = (LinearLayout) getActivity().findViewById(R.id.remoteControlLLconsole);
+//            if (remoteLayout != null) remoteLayout.setVisibility(LinearLayout.VISIBLE);
+//            remoteLayout = (LinearLayout) getActivity().findViewById(R.id.remoteControlLLcoeff);
+//            if (remoteLayout != null) remoteLayout.setVisibility(LinearLayout.VISIBLE);
+//        } else {
+//            LinearLayout remoteLayout = (LinearLayout) getActivity().findViewById(R.id.remoteControlLLgraph);
+//            if (remoteLayout != null) remoteLayout.setVisibility(LinearLayout.GONE);
+//            remoteLayout = (LinearLayout) getActivity().findViewById(R.id.remoteControlLLdial);
+//            if (remoteLayout != null) remoteLayout.setVisibility(LinearLayout.GONE);
+//            remoteLayout = (LinearLayout) getActivity().findViewById(R.id.remoteControlLLpid);
+//            if (remoteLayout != null) remoteLayout.setVisibility(LinearLayout.GONE);
+//            remoteLayout = (LinearLayout) getActivity().findViewById(R.id.remoteControlLLraw);
+//            if (remoteLayout != null) remoteLayout.setVisibility(LinearLayout.GONE);
+//            remoteLayout = (LinearLayout) getActivity().findViewById(R.id.remoteControlLLconsole);
+//            if (remoteLayout != null) remoteLayout.setVisibility(LinearLayout.GONE);
+//            remoteLayout = (LinearLayout) getActivity().findViewById(R.id.remoteControlLLcoeff);
+//            if (remoteLayout != null) remoteLayout.setVisibility(LinearLayout.GONE);
+//        }
+//    }
 
     public void update() {
         //Log.d(TAG,"update()");

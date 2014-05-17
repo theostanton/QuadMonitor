@@ -77,10 +77,10 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
             }
         });
 
-        for (int i = 0; i < tabLabels.length; i++) {
+        for (String tabLabel : tabLabels) {
             actionBar.addTab(
                     actionBar.newTab()
-                            .setText(tabLabels[i])
+                            .setText(tabLabel)
                             .setTabListener(this)
             );
         }

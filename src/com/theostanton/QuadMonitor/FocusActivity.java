@@ -87,8 +87,7 @@ public class FocusActivity extends Activity implements View.OnTouchListener{
         d.setFocusGraph(false);
         try {
             if (broadcastReceiver != null) unregisterReceiver(broadcastReceiver);
-        } catch (Exception e) {
-
+        } catch (Exception ignored) {
         }
     }
 

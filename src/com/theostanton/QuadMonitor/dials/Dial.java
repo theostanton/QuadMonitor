@@ -9,10 +9,7 @@ import com.theostanton.QuadMonitor.Component;
 import com.theostanton.QuadMonitor.D;
 import com.theostanton.QuadMonitor.G;
 
-/**
- * Created by theo on 23/04/2014.
- */
-public class Dial extends Component{
+public class Dial extends Component {
 
     protected final String TAG = "Dial";
 
@@ -62,9 +59,9 @@ public class Dial extends Component{
         for (int a = 0; a < 360; a += 20) drawNib(Math.toRadians(a), c);
     }
 
-    public void set(int[] i){
+    public void set(int[] i) {
         Log.d(TAG, i.length + " ids being set");
-        for(int ii: i){
+        for (int ii : i) {
             Log.d(TAG, "IDs : " + ii + " set");
         }
         IDs = i;
@@ -85,13 +82,13 @@ public class Dial extends Component{
         }
     }
 
-    private void drawLine(double ang, int color, Canvas c){
+    private void drawLine(double ang, int color, Canvas c) {
         p.setColor(color);
         p.setStrokeWidth(2.0f);
         c.drawLine(ctrX, ctrY,
                 ctrX - radius * (float) Math.cos(ang),
                 ctrY - radius * (float) Math.sin(ang), p);
-        c.drawLine(ctrX,ctrY,
+        c.drawLine(ctrX, ctrY,
                 ctrX + radius * (float) Math.cos(ang),
                 ctrY + radius * (float) Math.sin(ang), p);
     }
@@ -114,11 +111,11 @@ public class Dial extends Component{
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-        super.onSizeChanged(w,h,oldw,oldh);
+        super.onSizeChanged(w, h, oldw, oldh);
         radius = diameter / 2.0f;
 
-        float xx = w/2.0f - diameter/2.0f;
-        float yy = h/2.0f - diameter/2.0f;
+        float xx = w / 2.0f - diameter / 2.0f;
+        float yy = h / 2.0f - diameter / 2.0f;
 
 
         sqBounds = new RectF(0.0f, 0.0f, diameter, diameter);

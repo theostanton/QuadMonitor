@@ -72,7 +72,6 @@ public class D{ // Singleton. make thread safer
     private static boolean updating = false;
     private static SparseArray<Value> values;
     private static Bitmap bitMap;
-    ;
     private static SparseArray<LinkedList<Float>> lists;
     private static Canvas[] canvases;
     private static Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -446,7 +445,7 @@ public class D{ // Singleton. make thread safer
     public static String getRaw() {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i <= 26; i++) {
-            sb.append(i + " " + values.get(i).getName() + " " + getStringVal(i) + "\n");
+            sb.append(i).append(" ").append(values.get(i).getName()).append(" ").append(getStringVal(i)).append("\n");
         }
         return sb.toString();
     }
