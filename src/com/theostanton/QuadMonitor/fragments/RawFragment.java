@@ -5,7 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import com.theostanton.QuadMonitor.D;
+import com.theostanton.QuadMonitor.statics.D;
 import com.theostanton.QuadMonitor.R;
 
 import java.util.ArrayList;

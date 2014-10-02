@@ -7,7 +7,7 @@ import android.graphics.Paint;
 import android.util.AttributeSet;
 import android.util.Log;
 import com.theostanton.QuadMonitor.Component;
-import com.theostanton.QuadMonitor.D;
+import com.theostanton.QuadMonitor.statics.D;
 
 import java.util.Random;
 

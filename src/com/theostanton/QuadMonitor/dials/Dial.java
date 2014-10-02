@@ -6,8 +6,8 @@ import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.util.Log;
 import com.theostanton.QuadMonitor.Component;
-import com.theostanton.QuadMonitor.D;
-import com.theostanton.QuadMonitor.G;
+import com.theostanton.QuadMonitor.statics.D;
+import com.theostanton.QuadMonitor.statics.G;
 
 public class Dial extends Component {
 

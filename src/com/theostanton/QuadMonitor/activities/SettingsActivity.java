@@ -1,4 +1,4 @@
-package com.theostanton.QuadMonitor;
+package com.theostanton.QuadMonitor.activities;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -6,6 +6,7 @@ import android.preference.EditTextPreference;
 import android.preference.PreferenceActivity;
 import android.util.Log;
 import android.view.MenuItem;
+import com.theostanton.QuadMonitor.R;
 
 /**
  * Created by theo on 07/05/2014.

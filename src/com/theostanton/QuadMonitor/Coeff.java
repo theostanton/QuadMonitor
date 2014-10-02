@@ -8,6 +8,7 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.util.Log;
+import com.theostanton.QuadMonitor.statics.D;
 
 /**
  * Created by theo on 02/05/2014.
@@ -61,15 +62,15 @@ public class Coeff extends Component{
         switch(i){
             case BluetoothService.KPid:
                 tit = "P";
-                val = com.theostanton.QuadMonitor.D.getpVal();
+                val = D.getpVal();
                 break;
             case BluetoothService.KIid:
                 tit = "I";
-                val = com.theostanton.QuadMonitor.D.getiVal();
+                val = D.getiVal();
                 break;
             case BluetoothService.KDid:
                 tit = "D";
-                val = com.theostanton.QuadMonitor.D.getdVal();
+                val = D.getdVal();
                 break;
             default:
                 Log.e(TAG, "ID error " + i);

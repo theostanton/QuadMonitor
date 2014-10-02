@@ -7,6 +7,8 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import com.theostanton.QuadMonitor.statics.D;
+import com.theostanton.QuadMonitor.statics.G;
 
 /**
  * Created by theo on 08/05/2014.
@@ -108,25 +110,25 @@ public class RemoteControl extends View implements View.OnTouchListener {
     private void sendVals(boolean released) {
 
         if (released) {
-            yVal = 0;
-            xVal = 0;
+            if (ySticky) yVal = 0;
+            if (xSticky) xVal = 0;
         }
         Intent intent = new Intent(BluetoothService.BTSENDMESSAGE);
         intent.putExtra("id", xID);
         intent.putExtra("Value", xVal);
         getContext().sendBroadcast(intent);
-        D.setControl(xID, xVal);
+        if( G.automate) D.setControl(xID, xVal);
 
         intent = new Intent(BluetoothService.BTSENDMESSAGE);
         intent.putExtra("id", yID);
         intent.putExtra("Value", yVal);
-        D.setControl(yID, yVal);
         getContext().sendBroadcast(intent);
+        if( G.automate) D.setControl(yID, yVal);
 
-        if (!G.automate) {
-            D.updateLists();
-            getContext().sendBroadcast(new Intent(BluetoothService.BROADCAST_ACTION));
-        }
+//        if (!G.automate) {
+//            D.updateLists();
+//            getContext().sendBroadcast(new Intent(BluetoothService.BROADCAST_ACTION));
+//        }
     }
 
     @Override

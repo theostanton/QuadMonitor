@@ -1,9 +1,11 @@
-package com.theostanton.QuadMonitor;
+package com.theostanton.QuadMonitor.statics;
 
 import android.content.Intent;
 import android.graphics.*;
 import android.util.Log;
 import android.util.SparseArray;
+import com.theostanton.QuadMonitor.BluetoothService;
+import com.theostanton.QuadMonitor.Value;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -243,8 +245,8 @@ public class D{ // Singleton. make thread safer
         int j = 0;
         for (int id : IDs) {
             float x = 0.0f;
-            float prev;
-            float prev2;
+            float prev = 0.0f;
+            float prev2 = 0.0f;
             list = lists.get(id);
             paths[j] = new Path();
             if (values > size) { // graph not full
@@ -255,15 +257,21 @@ public class D{ // Singleton. make thread safer
                 paths[j].moveTo(x, ctrY);
                 paths[j].quadTo(x, ctrY, x, prev);
             } else { // graph  full
-                int index = size - values;
-                it = list.listIterator(index);
-                prev = list.get(index);
-                prev *= yScale;
-                prev += ctrY;
-                prev2 = prev;
-                paths[j].moveTo(-2, ctrY);
-                // paths[j].quadTo(-2, prev);
-                paths[j].lineTo(0, prev);
+                try {
+                    int index = size - values;
+                    it = list.listIterator(index);
+                    prev = list.get(index);
+                    prev *= yScale;
+                    prev += ctrY;
+                    prev2 = prev;
+                    paths[j].moveTo(-2, ctrY);
+                    // paths[j].quadTo(-2, prev);
+                    paths[j].lineTo(0, prev);
+                }
+                catch (Exception e){
+                    e.printStackTrace();
+                    return;
+                }
 
             }
 
@@ -401,40 +409,82 @@ public class D{ // Singleton. make thread safer
         return String.valueOf(rounded);
     }
 
+
     public synchronized static void sortPacket(float[] packet) {
         int i = 0;
         int a = 0;
-        if (packet.length == 26) {
+        // was 26 with MESYAW
+        if (packet.length == 29) {
             switch (a) {
                 case 0:
                     values.get(GYROROLL).setVal(packet[i++]);
-                    values.get(GYROPITCH).setVal(packet[i++]);
-                    values.get(GYROYAW).setVal(packet[i++]);
-                    values.get(ACCROLL).setVal(packet[i++]);
-                    values.get(ACCPITCH).setVal(packet[i++]);
-                    values.get(MESYAW).setVal(packet[i++] / 2.0f); // TODO heading vs angle
-                    values.get(MESROLL).setVal(packet[i++]);
-                    values.get(MESPITCH).setVal(packet[i++]);
-                    values.get(ERRROLL).setVal(packet[i++]);
-                    values.get(ERRPITCH).setVal(packet[i++]);
-                    values.get(ERRYAW).setVal(packet[i++]);
-                    values.get(ERRROLLINTEGRAL).setVal(packet[i++]);
-                    values.get(ERRPITCHINTEGRAL).setVal(packet[i++]);
-                    i++; //values.get(MESYAW).setVal(packet[i++]);
+                    values.get(GYROROLL).logSelf();
 
+                    values.get(GYROPITCH).setVal(packet[i++]);
+                    values.get(GYROPITCH).logSelf();
+
+                    values.get(GYROYAW).setVal(packet[i++]);
+                    values.get(GYROYAW).logSelf();
+
+                    values.get(ACCROLL).setVal(packet[i++]);
+                    values.get(ACCROLL).logSelf();
+
+                    values.get(ACCPITCH).setVal(packet[i++]);
+                    values.get(ACCPITCH).logSelf();
+
+                    values.get(MESYAW).setVal(packet[i++]);
+                    values.get(MESYAW).logSelf();
+
+                    values.get(MESROLL).setVal(packet[i++]);
+                    values.get(MESROLL).logSelf();
+
+                    values.get(MESPITCH).setVal(packet[i++]);
+                    values.get(MESPITCH).logSelf();
+
+                    values.get(ERRYAW).setVal(packet[i++]);
+                    values.get(ERRYAW).logSelf();
+
+                    values.get(ERRROLL).setVal(packet[i++]);
+                    values.get(ERRROLL).logSelf();
+                    values.get(ERRPITCH).setVal(packet[i++]);
+                    values.get(ERRPITCH).logSelf();
+                    values.get(ERRROLLINTEGRAL).setVal(packet[i++]);
+                    values.get(ERRROLLINTEGRAL).logSelf();
+                    values.get(ERRPITCHINTEGRAL).setVal(packet[i++]);
+                    values.get(ERRPITCHINTEGRAL).logSelf();
+                    //i++; //values.get(MESYAW).setVal(packet[i++]);
+
+
+                    values.get(DESROLL).setVal(packet[i++]);
+                    values.get(DESPITCH).setVal(packet[i++]);
+                    values.get(DESYAW).setVal(packet[i++]);
+                    //values.get(RXTHROTTLE).setVal(packet[i++]);
+                    i++;
 
                     values.get(pA).setVal(packet[i++]);
+                    values.get(pA).logSelf();
                     values.get(iA).setVal(packet[i++]);
+                    values.get(iA).logSelf();
                     values.get(dA).setVal(packet[i++]);
+                    values.get(dA).logSelf();
                     values.get(pB).setVal(packet[i++]);
+                    values.get(pB).logSelf();
                     values.get(iB).setVal(packet[i++]);
+                    values.get(iB).logSelf();
                     values.get(dB).setVal(packet[i++]);
+                    values.get(dB).logSelf();
                     values.get(pC).setVal(packet[i++]);
+                    values.get(pC).logSelf();
                     values.get(iC).setVal(packet[i++]);
+                    values.get(iC).logSelf();
                     values.get(dC).setVal(packet[i++]);
+                    values.get(dC).logSelf();
                     values.get(pD).setVal(packet[i++]);
+                    values.get(pD).logSelf();
                     values.get(iD).setVal(packet[i++]);
+                    values.get(iD).logSelf();
                     values.get(dD).setVal(packet[i++]);
+                    values.get(dD).logSelf();
             }
             //updateLists();
         } else {
@@ -589,7 +639,7 @@ public class D{ // Singleton. make thread safer
 
     public int addToPacketQueue(float[] packet) {
         if (updater == null) {
-            ///Log.d(TAG,"updater == null");
+            //Log.d(TAG,"updater == null");
             updater = new Updater(packet);
             updater.start();
         } else if (updater.isAlive()) {

@@ -11,6 +11,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.IBinder;
 import android.util.Log;
+import com.theostanton.QuadMonitor.statics.D;
 
 /**
  * Created by theo on 15/05/2014.
@@ -63,7 +64,7 @@ public class MockerService extends Service implements SensorEventListener {
     public void stop() {
         Log.d(TAG, "Stop");
         sensorManager.unregisterListener(this);
-
+        unregisterReceiver(receiver);
     }
 
     @Override

@@ -5,7 +5,7 @@ import android.graphics.*;
 import android.util.AttributeSet;
 import android.util.Log;
 import com.theostanton.QuadMonitor.Component;
-import com.theostanton.QuadMonitor.D;
+import com.theostanton.QuadMonitor.statics.D;
 
 /**
  * Created by theo on 23/04/2014.

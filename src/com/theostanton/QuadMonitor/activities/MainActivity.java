@@ -1,4 +1,4 @@
-package com.theostanton.QuadMonitor;
+package com.theostanton.QuadMonitor.activities;
 
 import android.app.ActionBar;
 import android.content.Context;
@@ -17,12 +17,16 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.LinearLayout;
+import com.theostanton.QuadMonitor.*;
 import com.theostanton.QuadMonitor.dials.DialFragment;
 import com.theostanton.QuadMonitor.fragments.BaseFragment;
+import com.theostanton.QuadMonitor.fragments.CoeffFragment;
 import com.theostanton.QuadMonitor.fragments.ConsoleFragment;
 import com.theostanton.QuadMonitor.fragments.RawFragment;
 import com.theostanton.QuadMonitor.graphs.GraphFragment;
 import com.theostanton.QuadMonitor.pid.PidFragment;
+import com.theostanton.QuadMonitor.statics.D;
+import com.theostanton.QuadMonitor.statics.G;
 
 public class MainActivity extends FragmentActivity implements ActionBar.TabListener{
     /**

@@ -11,7 +11,7 @@
 
     <application android:label="@string/app_name" android:icon="@drawable/quad_monitor__icon">
 
-        <activity android:name="com.theostanton.QuadMonitor.MainActivity"
+        <activity android:name=".activities.MainActivity"
                   android:label="@string/app_name"
                   android:configChanges="orientation|keyboardHidden|screenSize">
             <intent-filter>
@@ -20,12 +20,12 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="com.theostanton.QuadMonitor.FocusActivity"/>
+        <activity android:name=".activities.FocusActivity"/>
 
-        <activity android:name="com.theostanton.QuadMonitor.FullScreenActivity"
+        <activity android:name=".activities.FullScreenActivity"
                   android:configChanges="orientation|keyboardHidden|screenSize"/>
 
-        <activity android:name="com.theostanton.QuadMonitor.SettingsActivity"/>
+        <activity android:name=".activities.SettingsActivity"/>
 
         <service android:name="com.theostanton.QuadMonitor.BluetoothService"
                  android:label="Bluetooth Service"/>

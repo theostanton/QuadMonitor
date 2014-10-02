@@ -10,6 +10,7 @@ import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.Toast;
+import com.theostanton.QuadMonitor.statics.D;
 
 import java.io.*;
 import java.nio.ByteBuffer;
@@ -142,10 +143,32 @@ public class BluetoothService extends Service implements SharedPreferences.OnSha
         Toast.makeText(this, "Bluetooth Disconnected.", Toast.LENGTH_SHORT).show();
     }
 
-    private synchronized void sendMessage(int id, byte[] bytes) {
+    private synchronized void sendMessageOLD(int id, byte[] bytes) {
         if (btSocket != null) {
             if (btSocket.isConnected()) {
                 //Log.d(TAG, "Sending id : " + id);
+                byte[] data = new byte[bytes.length + 1];
+                data[0] = (byte) id;
+                data[1] = bytes[1]; // MSB
+                data[2] = bytes[0]; // LSB
+
+                try {
+                    outStream.write(data);
+                } catch (IOException e) {
+                    Log.d(TAG, "outStream.write() error");
+                    e.printStackTrace();
+                }
+            } else {
+                Log.d(TAG, "btSocket not connected");
+            }
+        }
+
+    }
+
+    private synchronized void sendMessage(int id, byte[] bytes) {
+        if (btSocket != null) {
+            if (btSocket.isConnected()) {
+                Log.d(TAG, "Sending id : " + id);
                 byte[] data = new byte[bytes.length + 1];
                 data[0] = (byte) id;
                 data[1] = bytes[1]; // MSB
@@ -193,6 +216,7 @@ public class BluetoothService extends Service implements SharedPreferences.OnSha
             if (bluetooth.isEnabled()) {
                 Log.d(TAG, "Bluetooth is enabled...");
                 bluetooth.startDiscovery();
+                Log.d(TAG, "Starting discovery");
                 return true;
             } else {
                 Log.e(TAG, "Bluetooth is not enabled...");
@@ -202,8 +226,9 @@ public class BluetoothService extends Service implements SharedPreferences.OnSha
     }
 
     private boolean connectToDevice() {
+
         bluetoothDevice = bluetooth.getRemoteDevice("98:D3:31:50:0C:FE");
-        Log.d(TAG, "Conencting to " + bluetoothDevice.getName());
+        Log.d(TAG, "Connecting to " + bluetoothDevice.getName());
 
         try {
             btSocket = bluetoothDevice.createRfcommSocketToServiceRecord(MY_UUID);
@@ -343,7 +368,8 @@ public class BluetoothService extends Service implements SharedPreferences.OnSha
             while (running) {
                 try {
                     if ((line = in.readLine()) != null) {
-                        if(line.contains("::")) setValue(line);
+                        //Log.d(TAG,line);
+                        //if(line.contains("::")) setValue(line);
                         if (line.contains("Error")) addToConsole(line, true);
                         else if(line.length() > 20) sortPacket(line);
                         else addToConsole(line, true);
@@ -368,7 +394,38 @@ public class BluetoothService extends Service implements SharedPreferences.OnSha
         }
 
         private void sortPacket(String line){
-            String[] strings = line.split(" ");
+            String[] strings = line.split(",");
+            int[] packet = new int[strings.length-1];
+            //Log.d(TAG,"us " + strings[strings.length-1]);
+            if("P".equals(strings[0]) ){
+                //Log.d(TAG,"receiving packet " + strings.length);
+                for (int i = 0;  i < packet.length-1; i++) {
+                    packet[i] = Integer.parseInt(strings[i+1]);
+                }
+//                for(int i : packet){
+//                    Log.d(TAG,"i" + i);
+//                }
+                convertAndAddPacketQueue(packet);
+            }
+
+        }
+
+        private void convertAndAddPacketQueue(int[] packet) {
+            float floatPacket[] = new float[packet.length];
+
+            for(int i=0; i<packet.length; i++){
+                if(i<17){
+                    floatPacket[i] = (float)packet[i];
+                }
+                else {
+                    floatPacket[i] = (float)packet[i] / 1000.0f;
+                }
+            }
+            d.addToPacketQueue(floatPacket);
+        }
+
+        private void sortPacketOLDUSINGFLOATS(String line){
+            String[] strings = line.split(",");
             float[] packet = new float[strings.length];
             for (int i = 0; i < strings.length; i++) {
 

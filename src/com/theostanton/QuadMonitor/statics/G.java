@@ -1,4 +1,4 @@
-package com.theostanton.QuadMonitor;
+package com.theostanton.QuadMonitor.statics;
 
 import android.graphics.Color;
 

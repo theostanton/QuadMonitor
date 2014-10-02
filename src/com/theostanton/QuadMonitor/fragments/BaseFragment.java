@@ -9,6 +9,9 @@ import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.*;
 import com.theostanton.QuadMonitor.*;
+import com.theostanton.QuadMonitor.activities.FocusActivity;
+import com.theostanton.QuadMonitor.statics.D;
+import com.theostanton.QuadMonitor.statics.G;
 
 import java.util.ArrayList;
 
@@ -19,10 +22,11 @@ import static java.lang.Math.max;
  */
 public class BaseFragment extends Fragment implements View.OnTouchListener {
 
+    protected View layoutView;
+
     protected String TAG = "BaseFragmet";
     protected String VIEW = "UNASSIGNED";
     protected D d;
-    protected View layoutView;
     protected ArrayList<View> views;
     // protected Ticker ticker;
     protected float dx = 0.0f;

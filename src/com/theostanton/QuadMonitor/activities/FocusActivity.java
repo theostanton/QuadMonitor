@@ -1,4 +1,4 @@
-package com.theostanton.QuadMonitor;
+package com.theostanton.QuadMonitor.activities;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
@@ -10,6 +10,10 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
+import com.theostanton.QuadMonitor.BluetoothService;
+import com.theostanton.QuadMonitor.Component;
+import com.theostanton.QuadMonitor.statics.D;
+import com.theostanton.QuadMonitor.statics.G;
 import com.theostanton.QuadMonitor.dials.Dial;
 import com.theostanton.QuadMonitor.graphs.Graph;
 import com.theostanton.QuadMonitor.pid.Motor;

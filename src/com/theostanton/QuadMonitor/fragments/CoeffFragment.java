@@ -1,11 +1,13 @@
-package com.theostanton.QuadMonitor;
+package com.theostanton.QuadMonitor.fragments;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import com.theostanton.QuadMonitor.fragments.BaseFragment;
+import com.theostanton.QuadMonitor.BluetoothService;
+import com.theostanton.QuadMonitor.Coeff;
+import com.theostanton.QuadMonitor.R;
 
 import java.util.ArrayList;
 

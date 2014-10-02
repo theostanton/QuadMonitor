@@ -4,7 +4,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import com.theostanton.QuadMonitor.D;
+import com.theostanton.QuadMonitor.statics.D;
 import com.theostanton.QuadMonitor.R;
 import com.theostanton.QuadMonitor.fragments.BaseFragment;
 

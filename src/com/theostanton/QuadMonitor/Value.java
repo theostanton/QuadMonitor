@@ -72,6 +72,11 @@ public class Value {
         return name + ":" + String.valueOf(val);
     }
 
+    public void logSelf() {
+        return;
+        //Log.d("Value", name + ":" + String.valueOf(val) );
+    }
+
     public void setRange(float range) {
         min = -(range / 2.0f);
         max = range / 2.0f;

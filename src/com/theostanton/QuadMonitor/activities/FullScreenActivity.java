@@ -1,8 +1,9 @@
-package com.theostanton.QuadMonitor;
+package com.theostanton.QuadMonitor.activities;
 
 import android.app.Activity;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import com.theostanton.QuadMonitor.R;
 import com.theostanton.QuadMonitor.fragments.BaseFragment;
 
 /**
