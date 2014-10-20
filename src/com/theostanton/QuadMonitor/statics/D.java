@@ -11,7 +11,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.ListIterator;
 import java.util.Random;
-import java.util.concurrent.ArrayBlockingQueue;
 
 /**
  * Created by theo on 18/03/2014.
@@ -98,7 +97,7 @@ public class D{ // Singleton. make thread safer
     private static String[] axisTitle;
     private static float sampleRate = 20.0f;
     private static int sampleRateOffset = 0;
-    private static Updater updater;
+    // private static Updater updater;
     private static String console;
     private Intent intent;
     private Bitmap[] bitMaps;
@@ -409,12 +408,162 @@ public class D{ // Singleton. make thread safer
         return String.valueOf(rounded);
     }
 
+    // old sorting method of one packet
 
-    public synchronized static void sortPacket(float[] packet) {
+//    public synchronized static void sortPacket(float[] packet) {
+//        int i = 0;
+//        int a = 0;
+//        // was 26 with MESYAW
+//        if (packet.length == 29) {
+//            switch (a) {
+//                case 0:
+//                    values.get(GYROROLL).setVal(packet[i++]);
+//                    values.get(GYROROLL).logSelf();
+//
+//                    values.get(GYROPITCH).setVal(packet[i++]);
+//                    values.get(GYROPITCH).logSelf();
+//
+//                    values.get(GYROYAW).setVal(packet[i++]);
+//                    values.get(GYROYAW).logSelf();
+//
+//                    values.get(ACCROLL).setVal(packet[i++]);
+//                    values.get(ACCROLL).logSelf();
+//
+//                    values.get(ACCPITCH).setVal(packet[i++]);
+//                    values.get(ACCPITCH).logSelf();
+//
+//                    values.get(MESYAW).setVal(packet[i++]);
+//                    values.get(MESYAW).logSelf();
+//
+//                    values.get(MESROLL).setVal(packet[i++]);
+//                    values.get(MESROLL).logSelf();
+//
+//                    values.get(MESPITCH).setVal(packet[i++]);
+//                    values.get(MESPITCH).logSelf();
+//
+//                    values.get(ERRYAW).setVal(packet[i++]);
+//                    values.get(ERRYAW).logSelf();
+//
+//                    values.get(ERRROLL).setVal(packet[i++]);
+//                    values.get(ERRROLL).logSelf();
+//                    values.get(ERRPITCH).setVal(packet[i++]);
+//                    values.get(ERRPITCH).logSelf();
+//                    values.get(ERRROLLINTEGRAL).setVal(packet[i++]);
+//                    values.get(ERRROLLINTEGRAL).logSelf();
+//                    values.get(ERRPITCHINTEGRAL).setVal(packet[i++]);
+//                    values.get(ERRPITCHINTEGRAL).logSelf();
+//                    //i++; //values.get(MESYAW).setVal(packet[i++]);
+//
+//
+//                    values.get(DESROLL).setVal(packet[i++]);
+//                    values.get(DESPITCH).setVal(packet[i++]);
+//                    values.get(DESYAW).setVal(packet[i++]);
+//                    //values.get(RXTHROTTLE).setVal(packet[i++]);
+//                    i++;
+//
+//                    values.get(pA).setVal(packet[i++]);
+//                    values.get(pA).logSelf();
+//                    values.get(iA).setVal(packet[i++]);
+//                    values.get(iA).logSelf();
+//                    values.get(dA).setVal(packet[i++]);
+//                    values.get(dA).logSelf();
+//                    values.get(pB).setVal(packet[i++]);
+//                    values.get(pB).logSelf();
+//                    values.get(iB).setVal(packet[i++]);
+//                    values.get(iB).logSelf();
+//                    values.get(dB).setVal(packet[i++]);
+//                    values.get(dB).logSelf();
+//                    values.get(pC).setVal(packet[i++]);
+//                    values.get(pC).logSelf();
+//                    values.get(iC).setVal(packet[i++]);
+//                    values.get(iC).logSelf();
+//                    values.get(dC).setVal(packet[i++]);
+//                    values.get(dC).logSelf();
+//                    values.get(pD).setVal(packet[i++]);
+//                    values.get(pD).logSelf();
+//                    values.get(iD).setVal(packet[i++]);
+//                    values.get(iD).logSelf();
+//                    values.get(dD).setVal(packet[i++]);
+//                    values.get(dD).logSelf();
+//            }
+//            //updateLists();
+//        } else {
+//            Log.e("Packet Size", "" + packet.length);
+//        }
+//    }
+
+    public synchronized static void sortPacket(char id, float[] packet) {
         int i = 0;
         int a = 0;
         // was 26 with MESYAW
-        if (packet.length == 29) {
+
+        switch(id){
+            case 'R':
+            case 'P':
+            case 'T':
+                break;
+
+            case 'M':
+                setValue(MESROLL, packet[0]);
+                setValue(MESPITCH, packet[1]);
+                setValue(MESYAW, packet[2]);
+                break;
+
+            case 'D':
+                setValue(DESROLL, packet[0]);
+                setValue(DESPITCH, packet[1]);
+                setValue(DESYAW, packet[2]);
+                break;
+
+            case 'E':
+                setValue(ERRROLL, packet[0]);
+                setValue(ERRPITCH, packet[1]);
+                setValue(ERRYAW, packet[2]);
+                break;
+
+            case 'G':
+                setValue(GYROROLL, packet[0]);
+                setValue(GYROPITCH, packet[1]);
+                setValue(GYROYAW, packet[2]);
+                break;
+
+            case 'A':
+                setValue(ACCROLL, packet[0]);
+                setValue(ACCPITCH, packet[1]);
+                setValue(ACCYAW, packet[2]);
+                break;
+
+            case 'a':
+                setValue(pA, packet[0]);
+                setValue(iA, packet[1]);
+                setValue(dA, packet[2]);
+                break;
+
+            case 'b':
+                setValue(pB, packet[0]);
+                setValue(iB, packet[1]);
+                setValue(dB, packet[2]);
+                break;
+
+            case 'c':
+                setValue(pC, packet[0]);
+                setValue(iC, packet[1]);
+                setValue(dC, packet[2]);
+                break;
+
+            case 'd':
+                setValue(pD, packet[0]);
+                setValue(iD, packet[1]);
+                setValue(dD, packet[2]);
+                break;
+
+            default:
+                Log.e(TAG,"id error " + id);
+        }
+
+
+
+        if (false && packet.length == 29) {
             switch (a) {
                 case 0:
                     values.get(GYROROLL).setVal(packet[i++]);
@@ -487,9 +636,12 @@ public class D{ // Singleton. make thread safer
                     values.get(dD).logSelf();
             }
             //updateLists();
-        } else {
-            Log.e("Packet Size", "" + packet.length);
         }
+    }
+
+    private static void setValue(int iD, float value){
+        values.get(iD).setVal(value);
+        //values.get(dD).logSelf();
     }
 
     public static String getRaw() {
@@ -530,7 +682,7 @@ public class D{ // Singleton. make thread safer
         return updating;
     }
 
-    public static void setValue(int id, float value) { // from bluetooth
+    public static void setCoeffValue(int id, float value) { // from bluetooth
         switch (id) {
             case BluetoothService.KPid:
                 pVal = (int) (value * 1000.0f);
@@ -545,7 +697,7 @@ public class D{ // Singleton. make thread safer
                 Log.d(TAG, "dVal set to : " + dVal);
                 break;
             default:
-                Log.e(TAG, "setValue id error " + id);
+                Log.e(TAG, "setCoeffValue id error " + id);
         }
     }
 
@@ -637,21 +789,21 @@ public class D{ // Singleton. make thread safer
         return bitMaps[axisID];
     }
 
-    public int addToPacketQueue(float[] packet) {
-        if (updater == null) {
-            //Log.d(TAG,"updater == null");
-            updater = new Updater(packet);
-            updater.start();
-        } else if (updater.isAlive()) {
-            //Log.d(TAG,"updater.isAlive()");
-            updater.add(packet);
-        } else {
-            //Log.d(TAG,"updater != null && notAlive()");
-            updater = new Updater(packet);
-            updater.start();
-        }
-        return updater.queueSize();
-    }
+//    public int addToPacketQueue(float[] packet) {
+//        if (updater == null) {
+//            //Log.d(TAG,"updater == null");
+//            updater = new Updater(packet);
+//            updater.start();
+//        } else if (updater.isAlive()) {
+//            //Log.d(TAG,"updater.isAlive()");
+//            updater.add(packet);
+//        } else {
+//            //Log.d(TAG,"updater != null && notAlive()");
+//            updater = new Updater(packet);
+//            updater.start();
+//        }
+//        return updater.queueSize();
+//    }
 
     public synchronized void notifyFinishedUpdating() {
         updating = false;
@@ -675,63 +827,64 @@ public class D{ // Singleton. make thread safer
         while (i < 3) updateError(i++);
     }
 
-    class Updater extends Thread {
+//    class Updater extends Thread {
+//
+//        private static final String TAG = "Updater";
+//
+//        ArrayBlockingQueue<float[]> packetQueue;
+//        private boolean running = true;
+//
+//        public Updater(float[] packet) {
+//            //Log.d(TAG,"constructor");
+//            packetQueue = new ArrayBlockingQueue<float[]>(10);
+//            packetQueue.add(packet);
+//        }
+//
+//        @Override
+//        public void run() {
+//            int count = 0;
+//            //Log.d(TAG,"run");
+//            while (running) {
+//                if (!packetQueue.isEmpty()) {
+//                    updating = true;
+//                    while (!packetQueue.isEmpty()) {
+//                        //Log.d(TAG,"while");
+//                        count++;
+//                        try {
+//                            sortPacket('o', packetQueue.take());
+//                        } catch (InterruptedException e) {
+//                            Log.e(TAG, "packetQueue.take() error");
+//                            e.printStackTrace();
+//                        }
+//                        if (count > 1) Log.d(String.valueOf(count), "in a row");
+//                        if (!packetQueue.isEmpty()) Log.e(TAG, packetQueue.size() + " in packetQueue");
+//                    }
+//                    updateLists();
+//                    count = 0;
+//                }
+//                notifyFinishedUpdating();
+//                try {
+//                    Thread.sleep(1);
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//            //Log.d(TAG, "end while");
+//
+//
+//        }
+//
+//        public void add(float[] packet) {
+//            if (packetQueue.size() < 10) {
+//                packetQueue.add(packet);
+//                //Log.e(TAG, "Added to queue. " + packetQueue.size() + " in packetQueue");
+//            }
+//            //else Log.e(TAG, "packetQeue full");
+//        }
+//
+//        public int queueSize() {
+//            return packetQueue.size();
+//        }
+//    }
 
-        private static final String TAG = "Updater";
-
-        ArrayBlockingQueue<float[]> packetQueue;
-        private boolean running = true;
-
-        public Updater(float[] packet) {
-            //Log.d(TAG,"constructor");
-            packetQueue = new ArrayBlockingQueue<float[]>(10);
-            packetQueue.add(packet);
-        }
-
-        @Override
-        public void run() {
-            int count = 0;
-            //Log.d(TAG,"run");
-            while (running) {
-                if (!packetQueue.isEmpty()) {
-                    updating = true;
-                    while (!packetQueue.isEmpty()) {
-                        //Log.d(TAG,"while");
-                        count++;
-                        try {
-                            sortPacket(packetQueue.take());
-                        } catch (InterruptedException e) {
-                            Log.e(TAG, "packetQueue.take() error");
-                            e.printStackTrace();
-                        }
-                        if (count > 1) Log.d(String.valueOf(count), "in a row");
-                        if (!packetQueue.isEmpty()) Log.e(TAG, packetQueue.size() + " in packetQueue");
-                    }
-                    updateLists();
-                    count = 0;
-                }
-                notifyFinishedUpdating();
-                try {
-                    Thread.sleep(1);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-            //Log.d(TAG, "end while");
-
-
-        }
-
-        public void add(float[] packet) {
-            if (packetQueue.size() < 10) {
-                packetQueue.add(packet);
-                //Log.e(TAG, "Added to queue. " + packetQueue.size() + " in packetQueue");
-            }
-            //else Log.e(TAG, "packetQeue full");
-        }
-
-        public int queueSize() {
-            return packetQueue.size();
-        }
-    }
 }

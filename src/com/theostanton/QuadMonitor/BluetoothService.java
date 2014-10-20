@@ -227,7 +227,19 @@ public class BluetoothService extends Service implements SharedPreferences.OnSha
 
     private boolean connectToDevice() {
 
-        bluetoothDevice = bluetooth.getRemoteDevice("98:D3:31:50:0C:FE");
+        //bluetoothDevice = bluetooth.getRemoteDevice("98:D3:31:50:0C:FE");
+        bluetoothDevice = bluetooth.getRemoteDevice("20:14:08:08:25:10"); // Quad
+
+
+//        Set<BluetoothDevice> pairedDevices = bluetooth.getBondedDevices();
+//
+//        for(BluetoothDevice bd:pairedDevices){
+//            Log.d("Name",bd.getName());
+//            Log.d("Address",bd.getAddress());
+//        }
+//
+//        if(true) return false;
+
         Log.d(TAG, "Connecting to " + bluetoothDevice.getName());
 
         try {
@@ -350,6 +362,68 @@ public class BluetoothService extends Service implements SharedPreferences.OnSha
 
     class Listen extends Thread {
 
+
+        /*
+
+        Packets:
+
+        Desired
+
+            id = D
+            D0: desired Roll
+            D1: desired Pitch
+            D2: desired Yaw
+
+        Measured
+
+            id = M
+            D0: measured Roll
+            D1: measured Pitch
+            D2: measured Yaw
+
+        Error
+
+            id = E
+            D0: error Roll
+            D1: error Pitch
+            D2: error Yaw
+
+        Accel
+
+            id = A
+            D0: accel Roll
+            D1: accel Pitch
+            D2: accel Yaw
+
+        Gyro
+
+            id = G
+            D0: gyro Roll
+            D1: gyro Pitch
+            D2: gyro Yaw
+
+        RX
+
+            id = T
+            D0: rawvalue CH1
+            D1: rawvalue CH2
+            D2: rawvalue CH3
+            D3: rawvalue CH4
+            D4: rawvalue CH5
+            D5: rawvalue CH6
+
+        PIDs
+
+           id = a, b, c or d
+           D0: p * 1000
+           D1: i * 1000
+           D2: d * 1000
+           D3: correction
+
+        TODO: Timer packet
+
+         */
+
         boolean running = true;
 
         public Listen() {
@@ -369,10 +443,9 @@ public class BluetoothService extends Service implements SharedPreferences.OnSha
                 try {
                     if ((line = in.readLine()) != null) {
                         //Log.d(TAG,line);
-                        //if(line.contains("::")) setValue(line);
+                        //if(line.contains("::")) setCoeffValue(line);
                         if (line.contains("Error")) addToConsole(line, true);
-                        else if(line.length() > 20) sortPacket(line);
-                        else addToConsole(line, true);
+                        else sortPacket(line);
                     }
                     sendBroadcast(intent);
 
@@ -395,48 +468,85 @@ public class BluetoothService extends Service implements SharedPreferences.OnSha
 
         private void sortPacket(String line){
             String[] strings = line.split(",");
-            int[] packet = new int[strings.length-1];
-            //Log.d(TAG,"us " + strings[strings.length-1]);
-            if("P".equals(strings[0]) ){
-                //Log.d(TAG,"receiving packet " + strings.length);
-                for (int i = 0;  i < packet.length-1; i++) {
-                    packet[i] = Integer.parseInt(strings[i+1]);
-                }
-//                for(int i : packet){
-//                    Log.d(TAG,"i" + i);
+            float[] packetData = new float[strings.length-1];
+
+            switch( line.charAt(0) ){
+                case '!':
+                    D.updateLists();
+
+                case 'a':
+                case 'b':
+                case 'c':
+                case 'd':
+                    for (int i = 0;  i < packetData.length-1; i++) {
+                        packetData[i] = (float)Integer.parseInt(strings[i+1]) / 1000.0f;
+                    }
+                    break;
+                case 'R':
+                case 'M':
+                case 'A':
+                case 'G':
+                case 'D':
+                case 'E':
+                    for (int i = 0;  i < packetData.length-1; i++) {
+                        packetData[i] = (float)Integer.parseInt(strings[i+1])  ;
+                    }
+                    break;
+                default:
+                    Log.e(TAG, "Packet id error : " + line);
+                    addToConsole(line, true);
+            }
+
+            D.sortPacket(line.charAt(0), packetData);
+
+        }
+
+//        private void sortPacketSGL(String line){
+//            String[] strings = line.split(",");
+//            int[] packet = new int[strings.length-1];
+//            //Log.d(TAG,"us " + strings[strings.length-1]);
+//            if("P".equals(strings[0]) ){
+//                //Log.d(TAG,"receiving packet " + strings.length);
+//                for (int i = 0;  i < packet.length-1; i++) {
+//                    packet[i] = Integer.parseInt(strings[i+1]);
 //                }
-                convertAndAddPacketQueue(packet);
-            }
+////                for(int i : packet){
+////                    Log.d(TAG,"i" + i);
+////                }
+//                convertAndAddPacketQueue(packet);
+//            }
+//
+//        }
 
-        }
 
-        private void convertAndAddPacketQueue(int[] packet) {
-            float floatPacket[] = new float[packet.length];
 
-            for(int i=0; i<packet.length; i++){
-                if(i<17){
-                    floatPacket[i] = (float)packet[i];
-                }
-                else {
-                    floatPacket[i] = (float)packet[i] / 1000.0f;
-                }
-            }
-            d.addToPacketQueue(floatPacket);
-        }
-
-        private void sortPacketOLDUSINGFLOATS(String line){
-            String[] strings = line.split(",");
-            float[] packet = new float[strings.length];
-            for (int i = 0; i < strings.length; i++) {
-
-                if (strings[i].contains(".")) packet[i] = Float.parseFloat(strings[i]);
-                //Log.d(i + " ", String.valueOf(packet[i]));
-            }
-            //Log.d("string.size()",strings.length + " ");
-            long start = System.currentTimeMillis();
-            d.addToPacketQueue(packet);
-            long sortPacket = System.currentTimeMillis() - start;
-        }
+//        private void convertAndAddPacketQueueSGL(int[] packet) {
+//            float floatPacket[] = new float[packet.length];
+//
+//            for(int i=0; i<packet.length; i++){
+//                if(i<17){
+//                    floatPacket[i] = (float)packet[i];
+//                }
+//                else {
+//                    floatPacket[i] = (float)packet[i] / 1000.0f;
+//                }
+//            }
+//            d.addToPacketQueue(floatPacket);
+//        }
+//
+//        private void sortPacketOLDUSINGFLOATS(String line){
+//            String[] strings = line.split(",");
+//            float[] packet = new float[strings.length];
+//            for (int i = 0; i < strings.length; i++) {
+//
+//                if (strings[i].contains(".")) packet[i] = Float.parseFloat(strings[i]);
+//                //Log.d(i + " ", String.valueOf(packet[i]));
+//            }
+//            //Log.d("string.size()",strings.length + " ");
+//            long start = System.currentTimeMillis();
+//            d.addToPacketQueue(packet);
+//            long sortPacket = System.currentTimeMillis() - start;
+//        }
 
         private void setValue(String line){
             String[] strings = line.split("::");
@@ -444,7 +554,7 @@ public class BluetoothService extends Service implements SharedPreferences.OnSha
             if(strings.length == 2){
                 int id = Integer.parseInt(strings[0]);
                 float value = Float.parseFloat(strings[1]);
-                D.setValue(id,value);
+                D.setCoeffValue(id, value);
             }
         }
 
